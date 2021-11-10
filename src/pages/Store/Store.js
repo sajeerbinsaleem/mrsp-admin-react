@@ -11,6 +11,7 @@ import Topbar from "./components/Topbar";
 import Products from "./components/Products";
 import Categories from "./components/Categories";
 import Banners from "./components/Banners";
+import Notification from "./components/Notification";
 
 const api_url = "https://api.keralashoppie.com/api/v1/";
 
@@ -52,6 +53,10 @@ const Store = () => {
         break;
       case "Banners":
         setCurrent(<Banners />);
+        break;
+      case "Notification":
+        setCurrent(<Notification />);
+        break;
       default:
         break;
     }

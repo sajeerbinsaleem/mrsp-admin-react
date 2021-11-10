@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { Table } from "reactstrap";
+import {
+  Table,
+  Button,
+  Form,
+  Row,
+  Col,
+  FormGroup,
+  Label,
+  Input,
+} from "reactstrap";
 
 import store from "../../store/index";
+import Modal from "../Store/components/Modal";
 
 import image from "./image.jpg";
 
@@ -14,6 +24,14 @@ const api_url = "https://api.keralashoppie.com/api/v1/";
 const Delivery = () => {
   const [deliveryTable, setDeliveryTable] = useState(null);
   const [pageLimit, setPageLimit] = useState(1);
+  const [boy, setBoy] = useState({
+    name: "",
+    phone: "",
+    city: "",
+    email: "",
+    image: null,
+  });
+  const [show, setShow] = useState(false);
   useEffect(async () => {
     try {
       const response = await axios.get(
@@ -28,11 +46,67 @@ const Delivery = () => {
 
   const refresh = () => {};
   const fetchData = () => {};
+  const modalHandler = () => setShow(!show);
+  const submitHandler = async (event) => {
+    event.preventDefault();
+    const formData = new FormData();
+  };
+  const handleChange = (event) => {
+    if (event.target.name === "image") {
+      return setBoy({ ...boy, image: event.target.files[0] });
+    }
+    return setBoy({ ...boy, [event.target.name]: event.target.value });
+  };
 
   return (
     <>
+      <Modal
+        show={show}
+        modalHandler={modalHandler}
+        title="ADD DELIVERY BOY"
+        submitHandler={submitHandler}
+      >
+        <Form>
+          <Row>
+            <Col md="6" sm="12">
+              <FormGroup>
+                <Label for="Name">Name</Label>
+                <Input name="name" onChange={handleChange} value={boy.name} />
+              </FormGroup>
+              <FormGroup>
+                <Label for="phone">Phone</Label>
+                <Input name="phone" onChange={handleChange} value={boy.phone} />
+              </FormGroup>
+              <FormGroup>
+                <Label for="City">City</Label>
+                <Input name="city" onChange={handleChange} value={boy.city} />
+              </FormGroup>
+            </Col>
+            <Col md="6" sm="12">
+              <FormGroup>
+                <Label for="email">Email</Label>
+                <Input name="email" onChange={handleChange} value={boy.email} />
+              </FormGroup>
+              <FormGroup className="position-relative">
+                <Label for="image">Image</Label>
+                <Input
+                  type="file"
+                  name="image"
+                  id="exampleFile"
+                  onChange={handleChange}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
       {deliveryTable && (
         <div className="delivery">
+          <div className="d-flex mb-3 justify-content-end">
+            <Button color="warning" onClick={modalHandler}>
+              ADD DELIVERY BOY
+            </Button>
+          </div>
           <InfiniteScroll
             dataLength={deliveryTable.length} //This is important field to render the next data
             next={fetchData}

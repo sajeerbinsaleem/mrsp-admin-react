@@ -27,7 +27,7 @@ export default class AddFranchiseModal extends React.Component {
     this.state = {
       isFinalPage: false,
       resp: 0,
-      locations: [],
+      locations: [0, 1],
       translations: [],
       translation: {},
       docTitle: "",
@@ -123,7 +123,8 @@ export default class AddFranchiseModal extends React.Component {
       formData.append("francise_rate", this.state.franchise.francise_rate);
       formData.append("del_range", this.state.franchise.del_range);
       formData.append("email", this.state.franchise.email);
-      formData.append("location_id", this.state.franchise.location_id);
+      formData.append("location_id", 0);
+      // formData.append("location_id", this.state.franchise.location_id);
       formData.append("password", this.state.franchise.password);
       formData.append("phone", this.state.franchise.phone);
       formData.append("lat", this.state.franchise.lat);
@@ -249,12 +250,12 @@ export default class AddFranchiseModal extends React.Component {
                         </option>
                       ))}
                     </Input>
-                    {this.validator.message(
+                    {/* {this.validator.message(
                       "location_id",
                       this.state.franchise.location_id,
                       "required|numeric",
                       { className: "text-danger" }
-                    )}
+                    )} */}
                   </FormGroup>
                   <FormGroup className="position-relative">
                     <Label for="exampleEmail">Delivery Range</Label>

@@ -8,48 +8,37 @@ import {
   FormGroup,
   Label,
   Input,
+  InputGroup,
 } from "reactstrap";
 import axios from "axios";
 import { useParams } from "react-router";
 
 import Map from "../../../components/Map/Map";
 import Modal from "./Modal";
+import store_1 from "../../../store/index";
 
 const api_url = "https://api.keralashoppie.com/api/v1/";
-
-const DUMMY_LOCATIONS = [
-  {
-    id: 1,
-    place: "MANANTHAVADY",
-  },
-  {
-    id: 2,
-    place: "BATHERY",
-  },
-  {
-    id: 3,
-    place: "KALPETTA",
-  },
-  {
-    id: 4,
-    place: "PULPALLY",
-  },
-  {
-    id: 5,
-    place: "PANAMARAM",
-  },
-];
 
 const Overview = (props) => {
   const [store, setStore] = useState(null);
   const [show, setShow] = useState(false);
+  const [franchiseList, setFranchiseList] = useState([]);
   const storeId = useParams().storeId;
 
   useEffect(async () => {
     try {
       const response = await axios.get(api_url + `vendor/show/${storeId}`);
+      const franchiseRespone = await axios.get(
+        api_url + "franchise/list",
+        store_1.getState().user.requestHeader
+      );
       await setStore(response.data.data);
-      console.log(store);
+      await franchiseRespone.data.data.forEach(async (franchise) => {
+        await setFranchiseList([
+          ...franchiseList,
+          { id: franchise.id, name: franchise.franchise_name },
+        ]);
+      });
     } catch (error) {
       console.log("An error occurd.");
       console.log(error);
@@ -58,10 +47,67 @@ const Overview = (props) => {
 
   const modalHandler = () => {
     setShow(!show);
+    // console.log(franchiseList);
   };
-  const submitHandler = () => {};
+  const submitHandler = async (event) => {
+    event.preventDefault();
+    const formData = new FormData();
+    formData.append("store_name", store.store_name.en);
+    formData.append("employee_name", store.employee_name);
+    formData.append("store_photo", store.image);
+    formData.append("city", store.city);
+    formData.append("del_range", store.del_range);
+    formData.append("address", store.address);
+    formData.append("store_status", store.store_status);
+    formData.append("franchise_id", store.franchise_id);
+    try {
+      const response = await axios.put(`${api_url}vendor/update/${storeId}`);
+      // console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const handleChange = () => {};
+  const handleChange = (event) => {
+    switch (event.target.name) {
+      case "store_name_en":
+        setStore({
+          ...store,
+          store_name: { en: event.target.value, ml: store.store_name.ml },
+        });
+        break;
+      case "store_name_ml":
+        setStore({
+          ...store,
+          store_name: { ml: event.target.value, en: store.store_name.en },
+        });
+        break;
+      case "employee_name":
+        setStore({ ...store, employee_name: event.target.value });
+        break;
+      case "email":
+        setStore({ ...store, email: event.target.value });
+        break;
+      case "city":
+        setStore({ ...store, city: event.target.value });
+        break;
+      case "delivery_range":
+        setStore({ ...store, del_range: event.target.value });
+        break;
+      case "address":
+        setStore({ ...store, address: event.target.value });
+        break;
+      case "image":
+        setStore({ ...store, image: event.target.files[0] });
+        break;
+      case "status":
+        setStore({ ...store, store_status: event.target.value });
+        break;
+      case "franchise":
+        setStore({ ...store, franchise_id: event.target.value });
+        break;
+    }
+  };
 
   return (
     <>
@@ -109,16 +155,16 @@ const Overview = (props) => {
                     />
                   </FormGroup>
                   <FormGroup>
-                    <Label for="LOCATION">LOCATION</Label>
+                    <Label for="FRANCHISE">FRANCHISE</Label>
                     <Input
                       type="select"
-                      name="city"
+                      name="franchise"
                       id="exampleLocation"
                       onChange={handleChange}
-                      value={store.city}
+                      value={store.franchise_id}
                     >
-                      {DUMMY_LOCATIONS.map((place) => (
-                        <option value={place.id}>{place.place}</option>
+                      {franchiseList.map((place) => (
+                        <option value={place.id}>{place.name}</option>
                       ))}
                     </Input>
                   </FormGroup>
@@ -131,6 +177,62 @@ const Overview = (props) => {
                       onChange={handleChange}
                       value={store.email}
                     />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="place">City</Label>
+                    <Input
+                      name="city"
+                      onChange={handleChange}
+                      value={store.city}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="delivery range">Delivery Range</Label>
+                    <Input
+                      name="delivery_range"
+                      onChange={handleChange}
+                      value={store.del_range}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="address">Address</Label>
+                    <Input
+                      name="address"
+                      onChange={handleChange}
+                      value={store.address}
+                    />
+                  </FormGroup>
+                  <FormGroup className="position-relative">
+                    <Label for="image">Image</Label>
+                    <Input
+                      type="file"
+                      name="image"
+                      id="exampleFile"
+                      onChange={handleChange}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Row>
+                      <Col>
+                        <Label for="status">Status</Label>
+                      </Col>
+                      <Col>
+                        <span className="mr-4">OPEN</span>
+                        <Input
+                          type="radio"
+                          value={true}
+                          name="status"
+                          onChange={handleChange}
+                        />
+                        <span className="mr-4">CLOSED</span>
+                        <Input
+                          type="radio"
+                          name="status"
+                          value={false}
+                          onChange={handleChange}
+                        />
+                      </Col>
+                    </Row>
                   </FormGroup>
                 </Col>
               </Row>
