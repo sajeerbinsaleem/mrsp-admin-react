@@ -141,6 +141,7 @@ export default class AddFranchiseModal extends React.Component {
       }
     } else {
       this.validator.showMessages();
+      this.paginationHandler();
       this.forceUpdate();
     }
   };

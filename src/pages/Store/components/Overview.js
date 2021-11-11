@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   CardTitle,
   Col,
@@ -8,10 +8,10 @@ import {
   FormGroup,
   Label,
   Input,
-  InputGroup,
 } from "reactstrap";
 import axios from "axios";
 import { useParams } from "react-router";
+import SimpleReactValidator from "simple-react-validator";
 
 import Map from "../../../components/Map/Map";
 import Modal from "./Modal";
@@ -24,6 +24,7 @@ const Overview = (props) => {
   const [show, setShow] = useState(false);
   const [franchiseList, setFranchiseList] = useState([]);
   const storeId = useParams().storeId;
+  const simpleValidator = useRef(new SimpleReactValidator());
 
   useEffect(async () => {
     try {
@@ -51,20 +52,25 @@ const Overview = (props) => {
   };
   const submitHandler = async (event) => {
     event.preventDefault();
-    const formData = new FormData();
-    formData.append("store_name", store.store_name.en);
-    formData.append("employee_name", store.employee_name);
-    formData.append("store_photo", store.image);
-    formData.append("city", store.city);
-    formData.append("del_range", store.del_range);
-    formData.append("address", store.address);
-    formData.append("store_status", store.store_status);
-    formData.append("franchise_id", store.franchise_id);
-    try {
-      const response = await axios.put(`${api_url}vendor/update/${storeId}`);
-      // console.log(response);
-    } catch (error) {
-      console.log(error);
+
+    if (simpleValidator.current.allValid()) {
+      const formData = new FormData();
+      formData.append("store_name", store.store_name.en);
+      formData.append("employee_name", store.employee_name);
+      formData.append("store_photo", store.image);
+      formData.append("city", store.city);
+      formData.append("del_range", store.del_range);
+      formData.append("address", store.address);
+      formData.append("store_status", store.store_status);
+      formData.append("franchise_id", store.franchise_id);
+      try {
+        const response = await axios.put(`${api_url}vendor/update/${storeId}`);
+        // console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      simpleValidator.current.showMessages();
     }
   };
 
@@ -128,7 +134,16 @@ const Overview = (props) => {
                       name="store_name_en"
                       onChange={handleChange}
                       value={store.store_name.en}
+                      onBlur={() =>
+                        simpleValidator.current.showMessageFor("store_name_en")
+                      }
                     />
+                    {simpleValidator.current.message(
+                      "store_name_en",
+                      store.store_name.en,
+                      "required",
+                      { className: "text-danger" }
+                    )}
                   </FormGroup>
                   <FormGroup>
                     <Label for="shop name english">Shop name (Malayalam)</Label>
@@ -136,7 +151,16 @@ const Overview = (props) => {
                       name="store_name_ml"
                       onChange={handleChange}
                       value={store.store_name.ml}
+                      onBlur={() =>
+                        simpleValidator.current.showMessageFor("store_name_ml")
+                      }
                     />
+                    {simpleValidator.current.message(
+                      "store_name_ml",
+                      store.store_name.ml,
+                      "required",
+                      { className: "text-danger" }
+                    )}
                   </FormGroup>
                   <FormGroup>
                     <Label for="Employee name">Employee Name</Label>
@@ -144,7 +168,16 @@ const Overview = (props) => {
                       name="employee_name"
                       onChange={handleChange}
                       value={store.employee_name}
+                      onBlur={() =>
+                        simpleValidator.current.showMessageFor("employee_name")
+                      }
                     />
+                    {simpleValidator.current.message(
+                      "employee_name",
+                      store.employee_name,
+                      "required",
+                      { className: "text-danger" }
+                    )}
                   </FormGroup>
                   <FormGroup>
                     <Label for="Store no / Gst no">STORE NO / GST NO</Label>
@@ -176,7 +209,16 @@ const Overview = (props) => {
                       name="email"
                       onChange={handleChange}
                       value={store.email}
+                      onBlur={() =>
+                        simpleValidator.current.showMessageFor("email")
+                      }
                     />
+                    {simpleValidator.current.message(
+                      "email",
+                      store.email,
+                      "required|email",
+                      { className: "text-danger" }
+                    )}
                   </FormGroup>
                   <FormGroup>
                     <Label for="place">City</Label>
@@ -184,7 +226,16 @@ const Overview = (props) => {
                       name="city"
                       onChange={handleChange}
                       value={store.city}
+                      onBlur={() =>
+                        simpleValidator.current.showMessageFor("city")
+                      }
                     />
+                    {simpleValidator.current.message(
+                      "city",
+                      store.city,
+                      "required",
+                      { className: "text-danger" }
+                    )}
                   </FormGroup>
                   <FormGroup>
                     <Label for="delivery range">Delivery Range</Label>
@@ -192,7 +243,16 @@ const Overview = (props) => {
                       name="delivery_range"
                       onChange={handleChange}
                       value={store.del_range}
+                      onBlur={() =>
+                        simpleValidator.current.showMessageFor("delivery_range")
+                      }
                     />
+                    {simpleValidator.current.message(
+                      "delivery_range",
+                      store.del_range,
+                      "required|numeric",
+                      { className: "text-danger" }
+                    )}
                   </FormGroup>
                   <FormGroup>
                     <Label for="address">Address</Label>
@@ -200,7 +260,16 @@ const Overview = (props) => {
                       name="address"
                       onChange={handleChange}
                       value={store.address}
+                      onBlur={() =>
+                        simpleValidator.current.showMessageFor("address")
+                      }
                     />
+                    {simpleValidator.current.message(
+                      "address",
+                      store.address,
+                      "required",
+                      { className: "text-danger" }
+                    )}
                   </FormGroup>
                   <FormGroup className="position-relative">
                     <Label for="image">Image</Label>
@@ -209,7 +278,16 @@ const Overview = (props) => {
                       name="image"
                       id="exampleFile"
                       onChange={handleChange}
+                      onBlur={() =>
+                        simpleValidator.current.showMessageFor("image")
+                      }
                     />
+                    {simpleValidator.current.message(
+                      "image",
+                      store.image,
+                      "required",
+                      { className: "text-danger" }
+                    )}
                   </FormGroup>
                   <FormGroup>
                     <Row>

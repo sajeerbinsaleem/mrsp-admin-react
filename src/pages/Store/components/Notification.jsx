@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router";
 import store from "../../../store/index";
@@ -12,6 +12,7 @@ import {
   Label,
   Table,
 } from "reactstrap";
+import SimpleReactValidator from "simple-react-validator";
 
 import Modal from "./Modal";
 
@@ -20,6 +21,7 @@ const api_url = "https://api.keralashoppie.com/api/v1/";
 const Notification = () => {
   const [notifications, setNotifications] = useState(null);
   const storeId = useParams().storeId;
+  const simpleValidator = useRef(new SimpleReactValidator());
   const defaultNotification = {
     title_en: "",
     title_ml: "",
@@ -48,23 +50,28 @@ const Notification = () => {
   const modalHandler = () => setShow(!show);
   const submitHandler = async (event) => {
     event.preventDefault();
-    const formData = new FormData();
-    formData.append("title_en", createNotification.title_en);
-    formData.append("title_ml", createNotification.title_ml);
-    formData.append("description", createNotification.description);
-    formData.append("from_date", createNotification.from_date);
-    formData.append("to_date", createNotification.to_date);
-    formData.append("image", createNotification.image);
+    if (simpleValidator.current.allValid()) {
+      const formData = new FormData();
+      formData.append("title_en", createNotification.title_en);
+      formData.append("title_ml", createNotification.title_ml);
+      formData.append("description", createNotification.description);
+      formData.append("from_date", createNotification.from_date);
+      formData.append("to_date", createNotification.to_date);
+      formData.append("image", createNotification.image);
 
-    try {
-      const response = await axios.post(
-        api_url + "push-notifications",
-        formData,
-        store.getState().user.requestHeader
-      );
-      console.log(response);
-      setCreateNotification(defaultNotification);
-    } catch (error) {}
+      try {
+        const response = await axios.post(
+          api_url + "push-notifications",
+          formData,
+          store.getState().user.requestHeader
+        );
+        console.log(response);
+        setCreateNotification(defaultNotification);
+        setShow(!show);
+      } catch (error) {}
+    } else {
+      simpleValidator.current.showMessages();
+    }
   };
   const handleChange = (event) => {
     if (event.target.name === "image") {
@@ -96,7 +103,18 @@ const Notification = () => {
                   name="title_en"
                   onChange={handleChange}
                   value={createNotification.title_en}
+                  onBlur={() =>
+                    simpleValidator.current.showMessageFor("title_en")
+                  }
                 />
+                {simpleValidator.current.message(
+                  "title_en",
+                  createNotification.title_en,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
               <FormGroup>
                 <Label for="Title Malayalam">Title (Malayalam)</Label>
@@ -104,7 +122,18 @@ const Notification = () => {
                   name="title_ml"
                   onChange={handleChange}
                   value={createNotification.title_ml}
+                  onBlur={() =>
+                    simpleValidator.current.showMessageFor("title_ml")
+                  }
                 />
+                {simpleValidator.current.message(
+                  "title_ml",
+                  createNotification.title_ml,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
               <FormGroup>
                 <Label for="Description">Description</Label>
@@ -112,7 +141,18 @@ const Notification = () => {
                   name="description"
                   onChange={handleChange}
                   value={createNotification.description}
+                  onBlur={() =>
+                    simpleValidator.current.showMessageFor("description")
+                  }
                 />
+                {simpleValidator.current.message(
+                  "description",
+                  createNotification.description,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
             </Col>
             <Col md="6" sm="12">
@@ -124,7 +164,18 @@ const Notification = () => {
                   type="date"
                   value={createNotification.from_date}
                   onChange={handleChange}
+                  onBlur={() =>
+                    simpleValidator.current.showMessageFor("from_date")
+                  }
                 />
+                {simpleValidator.current.message(
+                  "from_date",
+                  createNotification.from_date,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
               <FormGroup>
                 <Label for="To Date">To Date</Label>
@@ -134,11 +185,35 @@ const Notification = () => {
                   type="date"
                   value={createNotification.to_date}
                   onChange={handleChange}
+                  onBlur={() =>
+                    simpleValidator.current.showMessageFor("to_date")
+                  }
                 />
+                {simpleValidator.current.message(
+                  "to_date",
+                  createNotification.to_date,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
               <FormGroup className="position-relative">
                 <Label for="image">Image</Label>
-                <Input type="file" name="image" onChange={handleChange} />
+                <Input
+                  type="file"
+                  name="image"
+                  onChange={handleChange}
+                  onBlur={() => simpleValidator.current.showMessageFor("image")}
+                />
+                {simpleValidator.current.message(
+                  "image",
+                  createNotification.image,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
             </Col>
           </Row>

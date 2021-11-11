@@ -107,6 +107,12 @@ export default class AddShopModal extends React.Component {
     });
   };
 
+  paginationHandler = () => {
+    this.setState({
+      isFinalPage: !this.state.isFinalPage,
+    });
+  };
+
   resetForm = () => {
     var obj = { type: "single" };
     this.setState({ leave: obj });
@@ -144,18 +150,13 @@ export default class AddShopModal extends React.Component {
       }
     } else {
       this.validator.showMessages();
+      this.paginationHandler();
       this.forceUpdate();
     }
   };
   fillForm(passedvalue) {
     this.setState({ task: passedvalue });
   }
-
-  paginationHandler = () => {
-    this.setState({
-      isFinalPage: !this.state.isFinalPage,
-    });
-  };
 
   componentDidMount() {
     // GeoCode();

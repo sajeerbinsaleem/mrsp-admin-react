@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {
@@ -11,6 +11,8 @@ import {
   Label,
   Input,
 } from "reactstrap";
+
+import SimpleReactValidator from "simple-react-validator";
 
 import store from "../../store/index";
 import Modal from "../Store/components/Modal";
@@ -32,6 +34,7 @@ const Delivery = () => {
     image: null,
   });
   const [show, setShow] = useState(false);
+  const simpleValidator = useRef(new SimpleReactValidator());
   useEffect(async () => {
     try {
       const response = await axios.get(
@@ -71,21 +74,63 @@ const Delivery = () => {
             <Col md="6" sm="12">
               <FormGroup>
                 <Label for="Name">Name</Label>
-                <Input name="name" onChange={handleChange} value={boy.name} />
+                <Input
+                  name="name"
+                  onChange={handleChange}
+                  value={boy.name}
+                  onBlur={() => simpleValidator.current.showMessageFor("name")}
+                />
+                {simpleValidator.current.message("name", boy.name, "required", {
+                  className: "text-danger",
+                })}
               </FormGroup>
               <FormGroup>
                 <Label for="phone">Phone</Label>
-                <Input name="phone" onChange={handleChange} value={boy.phone} />
+                <Input
+                  name="phone"
+                  onChange={handleChange}
+                  value={boy.phone}
+                  onBlur={() => simpleValidator.current.showMessageFor("phone")}
+                />
+                {simpleValidator.current.message(
+                  "phone",
+                  boy.phone,
+                  "required|phone",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
               <FormGroup>
                 <Label for="City">City</Label>
-                <Input name="city" onChange={handleChange} value={boy.city} />
+                <Input
+                  name="city"
+                  onChange={handleChange}
+                  value={boy.city}
+                  onBlur={() => simpleValidator.current.showMessageFor("city")}
+                />
+                {simpleValidator.current.message("city", boy.city, "required", {
+                  className: "text-danger",
+                })}
               </FormGroup>
             </Col>
             <Col md="6" sm="12">
               <FormGroup>
                 <Label for="email">Email</Label>
-                <Input name="email" onChange={handleChange} value={boy.email} />
+                <Input
+                  name="email"
+                  onChange={handleChange}
+                  value={boy.email}
+                  onBlur={() => simpleValidator.current.showMessageFor("email")}
+                />
+                {simpleValidator.current.message(
+                  "email",
+                  boy.email,
+                  "required|email",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
               <FormGroup className="position-relative">
                 <Label for="image">Image</Label>
@@ -94,7 +139,16 @@ const Delivery = () => {
                   name="image"
                   id="exampleFile"
                   onChange={handleChange}
+                  onBlur={() => simpleValidator.current.showMessageFor("image")}
                 />
+                {simpleValidator.current.message(
+                  "image",
+                  boy.image,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
             </Col>
           </Row>
@@ -144,7 +198,7 @@ const Delivery = () => {
               </thead>
               <tbody>
                 {deliveryTable.map((deliveryBoy, index) => (
-                  <tr>
+                  <tr key={index}>
                     <td>{index + 1}</td>
                     <td>
                       <img

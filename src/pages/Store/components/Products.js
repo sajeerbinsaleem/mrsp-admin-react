@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router";
 import {
   Button,
@@ -11,6 +11,8 @@ import {
   Input,
   Col,
 } from "reactstrap";
+
+import SimpleReactValidator from "simple-react-validator";
 
 import store from "../../../store/index";
 import Modal from "./Modal";
@@ -30,6 +32,7 @@ const Products = () => {
     image: null,
   });
 
+  const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
 
   const postForm = {
@@ -63,7 +66,6 @@ const Products = () => {
             ml: form.product_name.ml,
           },
         });
-        console.log(form.product_name.en);
         break;
       case "product_name_ml":
         setForm({
@@ -91,22 +93,26 @@ const Products = () => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const formData = new FormData();
-    formData.append("product_name_en", form.product_name.en);
-    console.log(form.product_name.en);
-    formData.append("product_name_ml", form.product_name.ml);
-    formData.append("price", form.price);
-    formData.append("offer_price", form.offer_price);
-    formData.append("image", form.image, form.image.name);
-    formData.append("categories", 7);
-    formData.append("quantity", 1);
-    formData.append("store_id", storeId);
-    formData.append("unit", 1);
-    formData.append("type", 1);
-    formData.append("added_by", store.getState().user.id);
-    try {
-      axios.post(api_url + "product", formData);
-    } catch (error) {}
+    if (simpleValidator.current.allValid()) {
+      const formData = new FormData();
+      formData.append("product_name_en", form.product_name.en);
+      console.log(form.product_name.en);
+      formData.append("product_name_ml", form.product_name.ml);
+      formData.append("price", form.price);
+      formData.append("offer_price", form.offer_price);
+      formData.append("image", form.image, form.image.name);
+      formData.append("categories", 7);
+      formData.append("quantity", 1);
+      formData.append("store_id", storeId);
+      formData.append("unit", 1);
+      formData.append("type", 1);
+      formData.append("added_by", store.getState().user.id);
+      try {
+        axios.post(api_url + "product", formData);
+      } catch (error) {}
+    } else {
+      simpleValidator.current.showMessages();
+    }
   };
 
   const modalHandler = () => {
@@ -140,7 +146,20 @@ const Products = () => {
                         name="product_name_en"
                         onChange={formChangeHandler}
                         value={form.product_name.en}
+                        onBlur={() =>
+                          simpleValidator.current.showMessageFor(
+                            "product_name_en"
+                          )
+                        }
                       />
+                      {simpleValidator.current.message(
+                        "product_name_en",
+                        form.product_name.en,
+                        "required",
+                        {
+                          className: "text-danger",
+                        }
+                      )}
                     </FormGroup>
                     <FormGroup>
                       <Label for="product name malayalam">
@@ -150,7 +169,20 @@ const Products = () => {
                         name="product_name_ml"
                         onChange={formChangeHandler}
                         value={form.product_name.ml}
+                        onBlur={() =>
+                          simpleValidator.current.showMessageFor(
+                            "product_name_ml"
+                          )
+                        }
                       />
+                      {simpleValidator.current.message(
+                        "product_name_ml",
+                        form.product_name.ml,
+                        "required",
+                        {
+                          className: "text-danger",
+                        }
+                      )}
                     </FormGroup>
                   </Col>
                   <Col>
@@ -165,7 +197,20 @@ const Products = () => {
                               name="product_price"
                               onChange={formChangeHandler}
                               value={form.price}
+                              onBlur={() =>
+                                simpleValidator.current.showMessageFor(
+                                  "product_price"
+                                )
+                              }
                             />
+                            {simpleValidator.current.message(
+                              "product_price",
+                              form.price,
+                              "required|numeric",
+                              {
+                                className: "text-danger",
+                              }
+                            )}
                           </Row>
                         </Col>
                       </Row>
@@ -183,7 +228,20 @@ const Products = () => {
                               name="product_offer_price"
                               onChange={formChangeHandler}
                               value={form.offer_price}
+                              onBlur={() =>
+                                simpleValidator.current.showMessageFor(
+                                  "product_offer_price"
+                                )
+                              }
                             />
+                            {simpleValidator.current.message(
+                              "product_offer_price",
+                              form.offer_price,
+                              "required|numeric",
+                              {
+                                className: "text-danger",
+                              }
+                            )}
                           </Row>
                         </Col>
                       </Row>
@@ -200,7 +258,18 @@ const Products = () => {
                         name="image"
                         type="file"
                         className="form-control"
+                        onBlur={() =>
+                          simpleValidator.current.showMessageFor("image")
+                        }
                       />
+                      {simpleValidator.current.message(
+                        "image",
+                        form.image,
+                        "required",
+                        {
+                          className: "text-danger",
+                        }
+                      )}
                     </Col>
                   </FormGroup>
                 </Col>

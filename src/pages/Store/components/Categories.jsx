@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router";
 import {
@@ -14,6 +14,7 @@ import {
 
 import Modal from "./Modal";
 import store from "../../../store/index";
+import SimpleReactValidator from "simple-react-validator";
 
 const api_url = "https://api.keralashoppie.com/api/v1/";
 
@@ -28,7 +29,7 @@ const Categories = () => {
     description: "",
     image: null,
   });
-
+  const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
 
   const postForm = {
@@ -74,19 +75,27 @@ const Categories = () => {
     }
   };
 
-  const submitHandler = async () => {
-    const formData = new FormData();
-    formData.append("title_ml", form.title.ml);
-    formData.append("title_en", form.title.en);
-    formData.append("description", form.description);
-    formData.append("image", form.image);
-    formData.append("store_id", storeId);
-    // formData.append("added_by", store.getState().user.id);
-    try {
-      const response = await axios.post(api_url + "productCategory", formData);
-      console.log(response);
-    } catch (error) {
-      console.log(error);
+  const submitHandler = async (event) => {
+    event.preventDefault();
+    if (simpleValidator.current.allValid()) {
+      const formData = new FormData();
+      formData.append("title_ml", form.title.ml);
+      formData.append("title_en", form.title.en);
+      formData.append("description", form.description);
+      formData.append("image", form.image);
+      formData.append("store_id", storeId);
+      // formData.append("added_by", store.getState().user.id);
+      try {
+        const response = await axios.post(
+          api_url + "productCategory",
+          formData
+        );
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      simpleValidator.current.showMessages();
     }
   };
 
@@ -118,7 +127,18 @@ const Categories = () => {
                         name="title-en"
                         onChange={formChangeHandler}
                         value={form.title.en}
+                        onBlur={() =>
+                          simpleValidator.current.showMessageFor("title-en")
+                        }
                       />
+                      {simpleValidator.current.message(
+                        "title-en",
+                        form.title.en,
+                        "required",
+                        {
+                          className: "text-danger",
+                        }
+                      )}
                     </FormGroup>
                     <FormGroup>
                       <Label for="title malayalam">Title (മലയാളം)</Label>
@@ -126,7 +146,18 @@ const Categories = () => {
                         name="title-ml"
                         onChange={formChangeHandler}
                         value={form.title.ml}
+                        onBlur={() =>
+                          simpleValidator.current.showMessageFor("title-ml")
+                        }
                       />
+                      {simpleValidator.current.message(
+                        "title-ml",
+                        form.title.ml,
+                        "required",
+                        {
+                          className: "text-danger",
+                        }
+                      )}
                     </FormGroup>
                   </Col>
                   <Col>
@@ -142,7 +173,20 @@ const Categories = () => {
                               name="description"
                               onChange={formChangeHandler}
                               value={form.description}
+                              onBlur={() =>
+                                simpleValidator.current.showMessageFor(
+                                  "description"
+                                )
+                              }
                             />
+                            {simpleValidator.current.message(
+                              "description",
+                              form.description,
+                              "required",
+                              {
+                                className: "text-danger",
+                              }
+                            )}
                           </Row>
                         </Col>
                       </Row>
@@ -158,7 +202,18 @@ const Categories = () => {
                       name="image"
                       type="file"
                       className="form-control"
+                      onBlur={() =>
+                        simpleValidator.current.showMessageFor("image")
+                      }
                     />
+                    {simpleValidator.current.message(
+                      "image",
+                      form.image,
+                      "required",
+                      {
+                        className: "text-danger",
+                      }
+                    )}
                   </FormGroup>
                 </Col>
               </Row>

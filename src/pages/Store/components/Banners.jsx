@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
 import {
   Card,
@@ -17,6 +17,7 @@ import {
 
 import Modal from "./Modal";
 import store from "../../../store/index";
+import SimpleReactValidator from "simple-react-validator";
 
 const api_url = "https://api.keralashoppie.com/api/v1/";
 
@@ -28,6 +29,7 @@ const Banners = () => {
     image: null,
   });
 
+  const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
 
   useEffect(async () => {
@@ -56,17 +58,23 @@ const Banners = () => {
     }
   };
 
-  const submitHandler = async () => {
-    const formData = new FormData();
-    formData.append("banner_name", form.title);
-    formData.append("image", form.image);
-    formData.append("store_id", storeId);
-    formData.append("type", form.title);
-    try {
-      const response = await axios.post(api_url + "storeBanner", formData);
-      console.log(response);
-    } catch (error) {
-      console.log(error);
+  const submitHandler = async (event) => {
+    event.preventDefault();
+
+    if (simpleValidator.current.allValid()) {
+      const formData = new FormData();
+      formData.append("banner_name", form.title);
+      formData.append("image", form.image);
+      formData.append("store_id", storeId);
+      formData.append("type", form.title);
+      try {
+        const response = await axios.post(api_url + "storeBanner", formData);
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      simpleValidator.current.showMessages();
     }
   };
 
@@ -96,7 +104,16 @@ const Banners = () => {
                   name="title"
                   onChange={formChangeHandler}
                   value={form.title}
+                  onBlur={() => simpleValidator.current.showMessageFor("title")}
                 />
+                {simpleValidator.current.message(
+                  "title",
+                  form.title,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
               <FormGroup>
                 <Label for="Image">Image</Label>
@@ -106,7 +123,16 @@ const Banners = () => {
                   name="image"
                   type="file"
                   className="form-control"
+                  onBlur={() => simpleValidator.current.showMessageFor("image")}
                 />
+                {simpleValidator.current.message(
+                  "image",
+                  form.image,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
               </FormGroup>
             </Form>
           </Modal>
