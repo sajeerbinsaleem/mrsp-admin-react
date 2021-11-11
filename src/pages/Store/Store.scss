@@ -1,0 +1,29 @@
+.store {
+  &--img {
+    height: 10rem;
+  }
+  &__product--image {
+    height: 3rem;
+  }
+}
+.text-align-center {
+  text-align: center;
+}
+
+.textarea {
+  min-height: 6rem;
+}
+
+.card-image {
+  max-height: 20rem;
+}
+
+.container {
+  max-height: 40rem;
+  overflow: scroll;
+  width: 100%;
+}
+
+.text-danger {
+  color: rgb(224, 40, 40);
+}
