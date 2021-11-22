@@ -16,24 +16,32 @@ import SimpleReactValidator from "simple-react-validator";
 
 import store from "../../store/index";
 import Modal from "../Store/components/Modal";
-
-import image from "./image.jpg";
+import Map from "../../components/Map/Map";
 
 import "./Delivery.scss";
 
-const api_url = "https://api.keralashoppie.com/api/v1/";
+// const api_url = "https://api.keralashoppie.com/api/v1/";
+const api_url = "http://localhost:3001/api/v1/";
+
+const defaultBoy = {
+  name: "",
+  phone: "",
+  city: "",
+  email: "",
+  image: null,
+  address: "",
+  document: null,
+};
 
 const Delivery = () => {
   const [deliveryTable, setDeliveryTable] = useState(null);
   const [pageLimit, setPageLimit] = useState(1);
-  const [boy, setBoy] = useState({
-    name: "",
-    phone: "",
-    city: "",
-    email: "",
-    image: null,
-  });
+  const [boy, setBoy] = useState(defaultBoy);
   const [show, setShow] = useState(false);
+  const [coordiantes, setCoordiantes] = useState({
+    lat: null,
+    lng: null,
+  });
   const simpleValidator = useRef(new SimpleReactValidator());
   useEffect(async () => {
     try {
@@ -49,16 +57,53 @@ const Delivery = () => {
 
   const refresh = () => {};
   const fetchData = () => {};
-  const modalHandler = () => setShow(!show);
+  const modalHandler = () => {
+    setShow(!show);
+    setBoy(defaultBoy);
+    simpleValidator.current.hideMessages();
+  };
+
+  const mapHandler = (lat, lng) => {
+    setCoordiantes({ lat, lng });
+  };
+
   const submitHandler = async (event) => {
     event.preventDefault();
-    const formData = new FormData();
+    if (simpleValidator.current.allValid()) {
+      const formData = new FormData();
+      formData.append("full_name", boy.name);
+      formData.append("phone_number", Number(boy.phone));
+      formData.append("city", boy.city);
+      formData.append("email", boy.email);
+      formData.append("address", boy.address);
+      formData.append("image", boy.image);
+      formData.append("document", boy.document);
+      formData.append("lat", coordiantes.lat);
+      formData.append("lng", coordiantes.lng);
+      try {
+        const response = await axios.post(
+          api_url + `delivery-boy`,
+          formData,
+          store.getState().user.requestHeader
+        );
+        console.log(response);
+      } catch (error) {}
+    } else {
+      simpleValidator.current.showMessages();
+    }
   };
   const handleChange = (event) => {
-    if (event.target.name === "image") {
-      return setBoy({ ...boy, image: event.target.files[0] });
+    switch (event.target.name) {
+      case "image":
+        setBoy({ ...boy, image: event.target.files[0] });
+        break;
+      case "document":
+        console.log(event.target.files);
+        setBoy({ ...boy, document: event.target.files[0] });
+        break;
+      default:
+        setBoy({ ...boy, [event.target.name]: event.target.value });
     }
-    return setBoy({ ...boy, [event.target.name]: event.target.value });
   };
 
   return (
@@ -150,6 +195,65 @@ const Delivery = () => {
                   }
                 )}
               </FormGroup>
+              <FormGroup className="position-relative">
+                <Label for="document">Document</Label>
+                <Input
+                  type="file"
+                  name="document"
+                  id="exampleFile"
+                  onChange={handleChange}
+                  onBlur={() =>
+                    simpleValidator.current.showMessageFor("document")
+                  }
+                  disabled={!!!boy.image}
+                />
+                {simpleValidator.current.message(
+                  "document",
+                  boy.document,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
+              </FormGroup>
+              <FormGroup>
+                <Label for="address">Address</Label>
+                <Input
+                  name="address"
+                  type="textarea"
+                  onChange={handleChange}
+                  value={boy.address}
+                  onBlur={() =>
+                    simpleValidator.current.showMessageFor("address")
+                  }
+                />
+                {simpleValidator.current.message(
+                  "address",
+                  boy.address,
+                  "required",
+                  {
+                    className: "text-danger",
+                  }
+                )}
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col md="12">
+              <Map
+                height="40vh"
+                changable
+                handleDrop={mapHandler}
+                name="coordinates"
+              />
+              {simpleValidator.current.message(
+                "coordinates",
+                coordiantes.lat && coordiantes.lng,
+                "required",
+                {
+                  className: "text-danger",
+                }
+              )}
             </Col>
           </Row>
         </Form>
@@ -203,7 +307,7 @@ const Delivery = () => {
                     <td>
                       <img
                         className="delivery--image"
-                        src={image}
+                        src={deliveryBoy.image_url}
                         alt="not found"
                       />
                     </td>

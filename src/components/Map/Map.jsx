@@ -47,12 +47,12 @@ const Map = (props) => {
   return (
     <Row>
       <Col>
-        <div style={{ height: "60vh" }}>
+        <div style={{ height: props.height || "60vh" }}>
           <MapGL
             ref={mapRef}
             {...viewport}
             width="100%"
-            height="60vh"
+            height={props.height || "60vh"}
             onViewportChange={handleViewportChange}
             mapboxApiAccessToken={MAPBOX_TOKEN}
             mapStyle="mapbox://styles/mapbox/streets-v11"
