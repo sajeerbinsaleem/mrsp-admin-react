@@ -13,21 +13,30 @@ import {
   FormGroup,
   Input,
   Label,
+  Row,
+  Col,
 } from "reactstrap";
 
 import Modal from "./Modal";
 import store from "../../../store/index";
 import SimpleReactValidator from "simple-react-validator";
 
-const api_url = "https://api.keralashoppie.com/api/v1/";
+// const api_url = "https://api.keralashoppie.com/api/v1/";
+const api_url = "http://localhost:3001/api/v1/";
+
+const defaultBanner = {
+  title: "",
+  image: null,
+  banner_image: null,
+  id: null,
+};
 
 const Banners = () => {
   const [banners, setBanners] = useState(null);
   const [show, setShow] = useState(false);
-  const [form, setForm] = useState({
-    title: "",
-    image: null,
-  });
+  const [deleteShow, setDeleteShow] = useState(false);
+  const [form, setForm] = useState(defaultBanner);
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
 
   const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
@@ -67,11 +76,19 @@ const Banners = () => {
       formData.append("image", form.image);
       formData.append("store_id", storeId);
       formData.append("type", form.title);
-      try {
-        const response = await axios.post(api_url + "storeBanner", formData);
+      if (isUpdateMode) {
+        const response = await axios.put(
+          api_url + `storeBanner/update/${form.id}`,
+          formData
+        );
         console.log(response);
-      } catch (error) {
-        console.log(error);
+      } else {
+        try {
+          const response = await axios.post(api_url + "storeBanner", formData);
+          console.log(response);
+        } catch (error) {
+          console.log(error);
+        }
       }
     } else {
       simpleValidator.current.showMessages();
@@ -80,6 +97,32 @@ const Banners = () => {
 
   const modalHandler = () => {
     setShow(!show);
+    setIsUpdateMode(false);
+    setForm(defaultBanner);
+  };
+
+  const updateHandler = (banner) => {
+    setIsUpdateMode(!isUpdateMode);
+    setForm({
+      title: banner.banner_name,
+      banner_image: banner.banner_image,
+      id: banner.id,
+    });
+    setShow(!show);
+  };
+
+  const deleteShowHandler = (id) => {
+    setDeleteShow(!deleteShow);
+    setForm({ ...form, id });
+  };
+
+  const deleteHandler = (id) => {
+    try {
+      const response = axios.delete(api_url + `storeBanner/${id}`);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -94,7 +137,7 @@ const Banners = () => {
           <Modal
             show={show}
             modalHandler={modalHandler}
-            title="Add Product"
+            title={isUpdateMode ? "Update banner" : "Add Product"}
             submitHandler={submitHandler}
           >
             <Form>
@@ -127,7 +170,7 @@ const Banners = () => {
                 />
                 {simpleValidator.current.message(
                   "image",
-                  form.image,
+                  form.image || form.banner_image,
                   "required",
                   {
                     className: "text-danger",
@@ -136,25 +179,56 @@ const Banners = () => {
               </FormGroup>
             </Form>
           </Modal>
+          <Modal
+            show={deleteShow}
+            modalHandler={deleteShowHandler}
+            title="Delete Banner"
+            deleteHandler={deleteHandler}
+            id={form.id}
+          >
+            <h3>Are you sure?</h3>
+          </Modal>
           <Container>
-            {banners.map((banner) => (
-              <Card outline className="mb-4">
+            {banners.map((banner, index) => (
+              <Card key={index} outline className="mb-4">
                 <CardImg
                   src={banner.banner_image}
                   className="card-image"
                   alt="not found"
                 />
                 <CardBody>
-                  <CardTitle tag="h4">{banner.banner_name}</CardTitle>
-                  <CardText>
-                    Created at :{" "}
-                    {banner.created_at.slice(0, banner.created_at.indexOf("T"))}{" "}
-                    -{" "}
-                    {banner.created_at.substring(
-                      banner.created_at.indexOf("T") + 1,
-                      banner.created_at.indexOf("T") + 9
-                    )}
-                  </CardText>
+                  <Row>
+                    <Col>
+                      <CardTitle tag="h4">{banner.banner_name}</CardTitle>
+                      <CardText>
+                        Created at :{" "}
+                        {banner.created_at.slice(
+                          0,
+                          banner.created_at.indexOf("T")
+                        )}{" "}
+                        -{" "}
+                        {banner.created_at.substring(
+                          banner.created_at.indexOf("T") + 1,
+                          banner.created_at.indexOf("T") + 9
+                        )}
+                      </CardText>
+                    </Col>
+                    <Col className="d-flex justify-content-end align-items-center">
+                      <Button
+                        color="warning"
+                        className="mr-3"
+                        onClick={updateHandler.bind(this, banner)}
+                      >
+                        Update
+                      </Button>
+                      <Button
+                        color="danger"
+                        onClick={deleteShowHandler.bind(this, banner.id)}
+                      >
+                        Delete
+                      </Button>
+                    </Col>
+                  </Row>
                 </CardBody>
               </Card>
             ))}

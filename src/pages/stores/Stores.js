@@ -44,7 +44,8 @@ import AddShopModal from "../../components/AddShopModal";
 // import s from "./Dashboard.module.scss";
 import s from "./Tables.module.scss";
 import { Link } from "react-router-dom";
-const api_url = "https://api.keralashoppie.com/api/v1/";
+// const api_url = "https://api.keralashoppie.com/api/v1/";
+const api_url = "http://localhost:3001/api/v1/";
 // env.API_URL ? env.API_URL :
 const options = {
   autoClose: 4000,

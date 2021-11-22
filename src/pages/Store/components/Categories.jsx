@@ -16,19 +16,24 @@ import Modal from "./Modal";
 import store from "../../../store/index";
 import SimpleReactValidator from "simple-react-validator";
 
-const api_url = "https://api.keralashoppie.com/api/v1/";
+// const api_url = "https://api.keralashoppie.com/api/v1/";
+const api_url = "http://localhost:3001/api/v1/";
+
+const default_categtory = {
+  title: {
+    en: "",
+    ml: "",
+  },
+  description: "",
+  image: null,
+  id: null,
+};
 
 const Categories = () => {
   const [categories, setCategories] = useState(null);
   const [show, setShow] = useState(false);
-  const [form, setForm] = useState({
-    title: {
-      en: "",
-      ml: "",
-    },
-    description: "",
-    image: null,
-  });
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
+  const [form, setForm] = useState(default_categtory);
   const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
 
@@ -82,17 +87,30 @@ const Categories = () => {
       formData.append("title_ml", form.title.ml);
       formData.append("title_en", form.title.en);
       formData.append("description", form.description);
-      formData.append("image", form.image);
       formData.append("store_id", storeId);
       // formData.append("added_by", store.getState().user.id);
-      try {
-        const response = await axios.post(
-          api_url + "productCategory",
-          formData
-        );
-        console.log(response);
-      } catch (error) {
-        console.log(error);
+
+      if (isUpdateMode) {
+        try {
+          const response = await axios.put(
+            api_url + `productCategory/update/${form.id}`,
+            formData
+          );
+          console.log(response);
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        formData.append("image", form.image);
+        try {
+          const response = await axios.post(
+            api_url + "productCategory",
+            formData
+          );
+          console.log(response);
+        } catch (error) {
+          console.log(error);
+        }
       }
     } else {
       simpleValidator.current.showMessages();
@@ -101,7 +119,18 @@ const Categories = () => {
 
   const modalHandler = () => {
     setShow(!show);
+    if (!isUpdateMode) {
+      setForm(default_categtory);
+    }
+    setIsUpdateMode(false);
   };
+
+  const updateHandler = (category) => {
+    setIsUpdateMode(!isUpdateMode);
+    setForm({ ...category });
+    setShow(!show);
+  };
+
   return (
     <>
       {categories && (
@@ -114,7 +143,7 @@ const Categories = () => {
           <Modal
             show={show}
             modalHandler={modalHandler}
-            title="Add Product"
+            title={isUpdateMode ? "Update Category" : "Add Product"}
             submitHandler={submitHandler}
           >
             <Form inline className="mx-5">
@@ -194,27 +223,29 @@ const Categories = () => {
                   </Col>
                 </Row>
                 <Col className="mt-3" md="12">
-                  <FormGroup>
-                    <Label for="Image">Image</Label>
-                    <Input
-                      onChange={formChangeHandler}
-                      id="formFile"
-                      name="image"
-                      type="file"
-                      className="form-control"
-                      onBlur={() =>
-                        simpleValidator.current.showMessageFor("image")
-                      }
-                    />
-                    {simpleValidator.current.message(
-                      "image",
-                      form.image,
-                      "required",
-                      {
-                        className: "text-danger",
-                      }
-                    )}
-                  </FormGroup>
+                  {!isUpdateMode && (
+                    <FormGroup>
+                      <Label for="Image">Image</Label>
+                      <Input
+                        onChange={formChangeHandler}
+                        id="formFile"
+                        name="image"
+                        type="file"
+                        className="form-control"
+                        onBlur={() =>
+                          simpleValidator.current.showMessageFor("image")
+                        }
+                      />
+                      {simpleValidator.current.message(
+                        "image",
+                        form.image || form.image_url,
+                        "required",
+                        {
+                          className: "text-danger",
+                        }
+                      )}
+                    </FormGroup>
+                  )}
                 </Col>
               </Row>
             </Form>
@@ -226,11 +257,12 @@ const Categories = () => {
                 <th>Image</th>
                 <th>Title</th>
                 <th>Description</th>
+                <th>Update</th>
               </tr>
             </thead>
             <tbody>
               {categories.map((catagory, index) => (
-                <tr>
+                <tr key={index}>
                   <th scope="row" className="text-align-center">
                     {index + 1}
                   </th>
@@ -245,6 +277,14 @@ const Categories = () => {
                     <h4>{catagory.title.en}</h4>
                   </td>
                   <td>{catagory.description}</td>
+                  <td>
+                    <Button
+                      color="warning"
+                      onClick={updateHandler.bind(this, catagory)}
+                    >
+                      UPDATE
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>

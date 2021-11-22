@@ -17,20 +17,25 @@ import SimpleReactValidator from "simple-react-validator";
 import store from "../../../store/index";
 import Modal from "./Modal";
 
-const api_url = "https://api.keralashoppie.com/api/v1/";
+const api_url = "http://localhost:3001/api/v1/";
+// const api_url = "https://api.keralashoppie.com/api/v1/";
+
+const default_product = {
+  product_name: {
+    en: "",
+    ml: "",
+  },
+  price: null,
+  offer_price: null,
+  product_image: null,
+  id: null,
+};
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [show, setShow] = useState(false);
-  const [form, setForm] = useState({
-    product_name: {
-      en: "",
-      ml: "",
-    },
-    price: null,
-    offer_price: null,
-    image: null,
-  });
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
+  const [form, setForm] = useState(default_product);
 
   const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
@@ -43,14 +48,11 @@ const Products = () => {
   useEffect(async () => {
     try {
       const response = await axios.post(
-        api_url + "products",
+        api_url + "products?limit=3",
         postForm,
         store.getState().user.requestHeader
       );
-
-      console.log(response.data.data);
       setProducts(response.data.data);
-      console.log(products);
     } catch (error) {
       console.log(error);
     }
@@ -83,8 +85,10 @@ const Products = () => {
         setForm({ ...form, offer_price: event.target.value });
         break;
       case "image":
-        setForm({ ...form, ["image"]: event.target.files[0] });
-        console.log(form.image);
+        if (isUpdateMode && form.product_image) {
+          return;
+        }
+        setForm({ ...form, ["product_image"]: event.target.files[0] });
         break;
       default:
         break;
@@ -96,26 +100,47 @@ const Products = () => {
     if (simpleValidator.current.allValid()) {
       const formData = new FormData();
       formData.append("product_name_en", form.product_name.en);
-      console.log(form.product_name.en);
       formData.append("product_name_ml", form.product_name.ml);
       formData.append("price", form.price);
       formData.append("offer_price", form.offer_price);
-      formData.append("image", form.image, form.image.name);
       formData.append("categories", 7);
       formData.append("quantity", 1);
       formData.append("store_id", storeId);
       formData.append("unit", 1);
       formData.append("type", 1);
-      formData.append("added_by", store.getState().user.id);
-      try {
-        axios.post(api_url + "product", formData);
-      } catch (error) {}
+      formData.append("added_by", 1);
+      // formData.append("added_by", store.getState().user.id);
+
+      if (isUpdateMode) {
+        try {
+          const response = await axios.put(
+            api_url + `product/update/${form.id}`,
+            formData
+          );
+        } catch (error) {}
+      } else {
+        formData.append("image", form.product_image, form.product_image.name);
+        try {
+          console.log(formData);
+          await axios.post(api_url + "product", formData);
+        } catch (error) {}
+      }
     } else {
       simpleValidator.current.showMessages();
     }
   };
 
   const modalHandler = () => {
+    setShow(!show);
+    if (!isUpdateMode) {
+      setForm(default_product);
+    }
+    setIsUpdateMode(false);
+  };
+
+  const updateHandler = (product) => {
+    setIsUpdateMode(!isUpdateMode);
+    setForm({ ...product });
     setShow(!show);
   };
 
@@ -131,7 +156,7 @@ const Products = () => {
           <Modal
             show={show}
             modalHandler={modalHandler}
-            title="Add Product"
+            title={isUpdateMode ? "Update Product" : "Add Product"}
             submitHandler={submitHandler}
           >
             <Form inline className="mx-5">
@@ -249,29 +274,31 @@ const Products = () => {
                   </Col>
                 </Row>
                 <Col className="mt-3" md="12">
-                  <FormGroup>
-                    <Label for="Image">Image</Label>
-                    <Col>
-                      <Input
-                        onChange={formChangeHandler}
-                        id="formFile"
-                        name="image"
-                        type="file"
-                        className="form-control"
-                        onBlur={() =>
-                          simpleValidator.current.showMessageFor("image")
-                        }
-                      />
-                      {simpleValidator.current.message(
-                        "image",
-                        form.image,
-                        "required",
-                        {
-                          className: "text-danger",
-                        }
-                      )}
-                    </Col>
-                  </FormGroup>
+                  {!isUpdateMode && (
+                    <FormGroup>
+                      <Label for="Image">Image</Label>
+                      <Col>
+                        <Input
+                          onChange={formChangeHandler}
+                          id="formFile"
+                          name="image"
+                          type="file"
+                          className="form-control"
+                          onBlur={() =>
+                            simpleValidator.current.showMessageFor("image")
+                          }
+                        />
+                        {simpleValidator.current.message(
+                          "image",
+                          form.product_image,
+                          "required",
+                          {
+                            className: "text-danger",
+                          }
+                        )}
+                      </Col>
+                    </FormGroup>
+                  )}
                 </Col>
               </Row>
             </Form>
@@ -283,11 +310,12 @@ const Products = () => {
                 <th>Name</th>
                 <th>Price(₹)</th>
                 <th>Offer Price(₹)</th>
+                <th>Update</th>
               </tr>
             </thead>
             <tbody>
               {products.map((product, index) => (
-                <tr>
+                <tr key={index}>
                   <th scope="row" className="text-align-center">
                     {index + 1}
                   </th>
@@ -303,6 +331,14 @@ const Products = () => {
                   </td>
                   <td>{product.price}</td>
                   <td>{product.offer_price}</td>
+                  <td>
+                    <Button
+                      color="warning"
+                      onClick={updateHandler.bind(this, product)}
+                    >
+                      UPDATE
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>

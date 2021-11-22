@@ -26,6 +26,14 @@ const Modal = (props) => {
               Submit
             </Button>
           )}
+          {props.deleteHandler && (
+            <Button
+              color="danger"
+              onClick={props.deleteHandler.bind(this, props.id)}
+            >
+              Confirm
+            </Button>
+          )}
         </ModalFooter>
       </BSModal>
     </div>

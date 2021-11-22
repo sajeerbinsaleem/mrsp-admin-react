@@ -13,7 +13,8 @@ import Categories from "./components/Categories";
 import Banners from "./components/Banners";
 import Notification from "./components/Notification";
 
-const api_url = "https://api.keralashoppie.com/api/v1/";
+// const api_url = "https://api.keralashoppie.com/api/v1/";
+const api_url = "http://localhost:3001/api/v1/";
 
 const Store = () => {
   const [store, setStore] = useState(null);

@@ -16,11 +16,13 @@ import SimpleReactValidator from "simple-react-validator";
 
 import Modal from "./Modal";
 
-const api_url = "https://api.keralashoppie.com/api/v1/";
+// const api_url = "https://api.keralashoppie.com/api/v1/";
+const api_url = "http://localhost:3001/api/v1/";
 
 const Notification = () => {
   const [notifications, setNotifications] = useState(null);
   const storeId = useParams().storeId;
+  const [deleteShow, setDeleteShow] = useState(false);
   const simpleValidator = useRef(new SimpleReactValidator());
   const defaultNotification = {
     title_en: "",
@@ -31,10 +33,12 @@ const Notification = () => {
     status: 1,
     store_id: storeId,
     image: null,
+    id: null,
   };
   const [createNotification, setCreateNotification] =
     useState(defaultNotification);
   const [show, setShow] = useState(false);
+  const date = new Date();
 
   useEffect(async () => {
     try {
@@ -43,9 +47,25 @@ const Notification = () => {
         store.getState().user.requestHeader
       );
       await setNotifications(response.data.data);
-      console.log(notifications);
     } catch (error) {}
   }, []);
+
+  const deleteShowHandler = (id) => {
+    setDeleteShow(!deleteShow);
+    setCreateNotification({ ...createNotification, id });
+  };
+
+  const deleteHandler = (id) => {
+    try {
+      const response = axios.delete(
+        api_url + `push-notifications/${id}`,
+        store.getState().user.requestHeader
+      );
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const modalHandler = () => setShow(!show);
   const submitHandler = async (event) => {
@@ -219,6 +239,15 @@ const Notification = () => {
           </Row>
         </Form>
       </Modal>
+      <Modal
+        show={deleteShow}
+        modalHandler={deleteShowHandler}
+        title="Delete Banner"
+        deleteHandler={deleteHandler}
+        id={createNotification.id}
+      >
+        <h3>Are you sure?</h3>
+      </Modal>
       {notifications && (
         <div>
           <div className="d-flex mb-3 justify-content-end">
@@ -234,6 +263,8 @@ const Notification = () => {
               <th>Description</th>
               <th>From Date</th>
               <th>To Date</th>
+              <th>Validity</th>
+              <th>Delete</th>
             </thead>
             <tbody>
               {notifications.map((notification, index) => (
@@ -257,8 +288,23 @@ const Notification = () => {
                   <td>
                     {notification.to_date.slice(
                       0,
-                      notification.from_date.indexOf("T")
+                      notification.to_date.indexOf("T")
                     )}
+                  </td>
+                  <td>
+                    {Date.parse(notification.to_date) < Date.parse(date) ? (
+                      <span className="badge badge-danger">expired</span>
+                    ) : (
+                      <span className="badge badge-success">Valid</span>
+                    )}
+                  </td>
+                  <td>
+                    <Button
+                      color="danger"
+                      onClick={deleteShowHandler.bind(this, notification.id)}
+                    >
+                      DELETE
+                    </Button>
                   </td>
                 </tr>
               ))}
