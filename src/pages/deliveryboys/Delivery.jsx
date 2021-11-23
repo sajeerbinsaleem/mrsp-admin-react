@@ -31,17 +31,21 @@ const defaultBoy = {
   image: null,
   address: "",
   document: null,
+  id: null,
+};
+
+const defaultCoordinates = {
+  lat: null,
+  lng: null,
 };
 
 const Delivery = () => {
   const [deliveryTable, setDeliveryTable] = useState(null);
   const [pageLimit, setPageLimit] = useState(1);
   const [boy, setBoy] = useState(defaultBoy);
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
   const [show, setShow] = useState(false);
-  const [coordiantes, setCoordiantes] = useState({
-    lat: null,
-    lng: null,
-  });
+  const [coordiantes, setCoordiantes] = useState(defaultCoordinates);
   const simpleValidator = useRef(new SimpleReactValidator());
   useEffect(async () => {
     try {
@@ -60,6 +64,11 @@ const Delivery = () => {
   const modalHandler = () => {
     setShow(!show);
     setBoy(defaultBoy);
+    if (isUpdateMode) {
+      setIsUpdateMode(false);
+      setCoordiantes(defaultCoordinates);
+      setBoy(defaultBoy);
+    }
     simpleValidator.current.hideMessages();
   };
 
@@ -69,6 +78,7 @@ const Delivery = () => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
+    console.log(simpleValidator.current.errorMessages);
     if (simpleValidator.current.allValid()) {
       const formData = new FormData();
       formData.append("full_name", boy.name);
@@ -77,18 +87,34 @@ const Delivery = () => {
       formData.append("email", boy.email);
       formData.append("address", boy.address);
       formData.append("image", boy.image);
-      formData.append("document", boy.document);
       formData.append("lat", coordiantes.lat);
       formData.append("lng", coordiantes.lng);
-      try {
-        const response = await axios.post(
-          api_url + `delivery-boy`,
-          formData,
-          store.getState().user.requestHeader
-        );
-        console.log(response);
-      } catch (error) {}
+      if (!isUpdateMode) {
+        try {
+          formData.append("document", boy.document);
+          const response = await axios.post(
+            api_url + `delivery-boy`,
+            formData,
+            store.getState().user.requestHeader
+          );
+        } catch (error) {}
+      } else {
+        console.log("called");
+        formData.append("document_url", boy.document);
+        try {
+          console.log(boy.id);
+          const response = await axios.put(
+            api_url + `delivery-boy/${boy.id}`,
+            formData,
+            store.getState().user.requestHeader
+          );
+          console.log(response);
+        } catch (error) {
+          console.log(error);
+        }
+      }
     } else {
+      console.log("else called");
       simpleValidator.current.showMessages();
     }
   };
@@ -106,12 +132,34 @@ const Delivery = () => {
     }
   };
 
+  const updateModeHandler = (currentBoy) => {
+    console.log(currentBoy);
+    setIsUpdateMode(!isUpdateMode);
+    setBoy({
+      name: currentBoy.full_name,
+      phone: currentBoy.phone_number,
+      city: currentBoy.city,
+      email: currentBoy.email,
+      image: currentBoy.image_url,
+      document: currentBoy.document_url,
+      address: currentBoy.address,
+      id: currentBoy.id,
+    });
+
+    setCoordiantes({
+      lat: currentBoy.lat,
+      lng: currentBoy.lng,
+    });
+
+    setShow(!show);
+  };
+
   return (
     <>
       <Modal
         show={show}
         modalHandler={modalHandler}
-        title="ADD DELIVERY BOY"
+        title={isUpdateMode ? "Update Delivery Boy" : "ADD DELIVERY BOY"}
         submitHandler={submitHandler}
       >
         <Form>
@@ -195,6 +243,7 @@ const Delivery = () => {
                   }
                 )}
               </FormGroup>
+
               <FormGroup className="position-relative">
                 <Label for="document">Document</Label>
                 <Input
@@ -202,19 +251,21 @@ const Delivery = () => {
                   name="document"
                   id="exampleFile"
                   onChange={handleChange}
-                  onBlur={() =>
-                    simpleValidator.current.showMessageFor("document")
+                  onBlur={
+                    !isUpdateMode &&
+                    (() => simpleValidator.current.showMessageFor("document"))
                   }
-                  disabled={!!!boy.image}
+                  disabled={!!!boy.image || isUpdateMode}
                 />
-                {simpleValidator.current.message(
-                  "document",
-                  boy.document,
-                  "required",
-                  {
-                    className: "text-danger",
-                  }
-                )}
+                {isUpdateMode &&
+                  simpleValidator.current.message(
+                    "document",
+                    boy.document,
+                    "required",
+                    {
+                      className: "text-danger",
+                    }
+                  )}
               </FormGroup>
               <FormGroup>
                 <Label for="address">Address</Label>
@@ -245,6 +296,8 @@ const Delivery = () => {
                 changable
                 handleDrop={mapHandler}
                 name="coordinates"
+                lat={coordiantes.lat || null}
+                lng={coordiantes.lng || null}
               />
               {simpleValidator.current.message(
                 "coordinates",
@@ -299,6 +352,7 @@ const Delivery = () => {
                 <th>City</th>
                 <th>E-mail</th>
                 <th>Status</th>
+                <th>Update</th>
               </thead>
               <tbody>
                 {deliveryTable.map((deliveryBoy, index) => (
@@ -316,6 +370,14 @@ const Delivery = () => {
                     <td>{deliveryBoy.city}</td>
                     <td>{deliveryBoy.email}</td>
                     <td>{deliveryBoy.status}</td>
+                    <td>
+                      <Button
+                        color="warning"
+                        onClick={updateModeHandler.bind(this, deliveryBoy)}
+                      >
+                        Update
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

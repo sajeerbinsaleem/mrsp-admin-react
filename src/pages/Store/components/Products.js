@@ -135,7 +135,9 @@ const Products = () => {
     if (!isUpdateMode) {
       setForm(default_product);
     }
-    setIsUpdateMode(false);
+    if (isUpdateMode) {
+      setIsUpdateMode(false);
+    }
   };
 
   const updateHandler = (product) => {
