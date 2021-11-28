@@ -13,11 +13,12 @@ import {
   Table,
 } from "reactstrap";
 import SimpleReactValidator from "simple-react-validator";
+import env from "react-dotenv";
 
 import Modal from "./Modal";
 
-// const api_url = "https://api.keralashoppie.com/api/v1/";
-const api_url = "http://localhost:3001/api/v1/";
+const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+// const api_url = "http://localhost:3001/api/v1/";
 
 const Notification = () => {
   const [notifications, setNotifications] = useState(null);

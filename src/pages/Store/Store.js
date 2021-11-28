@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router";
 import { Card } from "reactstrap";
+import env from "react-dotenv";
 
 import StoreHeader from "./components/StoreHeader";
 import Overview from "./components/Overview";
@@ -13,8 +14,8 @@ import Categories from "./components/Categories";
 import Banners from "./components/Banners";
 import Notification from "./components/Notification";
 
-// const api_url = "https://api.keralashoppie.com/api/v1/";
-const api_url = "http://localhost:3001/api/v1/";
+const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+// const api_url = "http://localhost:3001/api/v1/";
 
 const Store = () => {
   const [store, setStore] = useState(null);

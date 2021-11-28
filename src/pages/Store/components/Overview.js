@@ -16,9 +16,10 @@ import SimpleReactValidator from "simple-react-validator";
 import Map from "../../../components/Map/Map";
 import Modal from "./Modal";
 import store_1 from "../../../store/index";
+import env from "react-dotenv";
 
-// const api_url = "https://api.keralashoppie.com/api/v1/";
-const api_url = "http://localhost:3001/api/v1/";
+const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+// const api_url = "http://localhost:3001/api/v1/";
 
 const Overview = (props) => {
   const [store, setStore] = useState(null);

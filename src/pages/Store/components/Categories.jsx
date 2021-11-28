@@ -11,13 +11,14 @@ import {
   Label,
   Input,
 } from "reactstrap";
+import env from 'react-dotenv';
 
 import Modal from "./Modal";
 import store from "../../../store/index";
 import SimpleReactValidator from "simple-react-validator";
 
-// const api_url = "https://api.keralashoppie.com/api/v1/";
-const api_url = "http://localhost:3001/api/v1/";
+const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+// const api_url = "http://localhost:3001/api/v1/";
 
 const default_categtory = {
   title: {

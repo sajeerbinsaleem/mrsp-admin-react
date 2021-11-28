@@ -13,6 +13,7 @@ import {
 } from "reactstrap";
 
 import SimpleReactValidator from "simple-react-validator";
+import env from "react-dotenv";
 
 import store from "../../store/index";
 import Modal from "../Store/components/Modal";
@@ -20,8 +21,8 @@ import Map from "../../components/Map/Map";
 
 import "./Delivery.scss";
 
-// const api_url = "https://api.keralashoppie.com/api/v1/";
-const api_url = "http://localhost:3001/api/v1/";
+const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+// const api_url = "http://localhost:3001/api/v1/";
 
 const defaultBoy = {
   name: "",
@@ -117,7 +118,7 @@ const Delivery = () => {
           );
           setShow(!show);
           refreshPage();
-          console.log(response)
+          console.log(response);
         } catch (error) {
           console.log(error);
         }
