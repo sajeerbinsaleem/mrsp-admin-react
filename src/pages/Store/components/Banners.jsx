@@ -38,6 +38,7 @@ const Banners = () => {
   const [deleteShow, setDeleteShow] = useState(false);
   const [form, setForm] = useState(defaultBanner);
   const [isUpdateMode, setIsUpdateMode] = useState(false);
+  const [isRefresh, setIsRefresh] = useState(false);
 
   const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
@@ -53,7 +54,7 @@ const Banners = () => {
       );
       setBanners(response.data.data);
     } catch (error) {}
-  }, []);
+  }, [isRefresh]);
 
   const formChangeHandler = (event) => {
     switch (event.target.name) {
@@ -83,11 +84,11 @@ const Banners = () => {
           api_url + `storeBanner/update/${form.id}`,
           formData
         );
-        console.log(response);
+        modalHandler();
       } else {
         try {
           const response = await axios.post(api_url + "storeBanner", formData);
-          console.log(response);
+          modalHandler();
         } catch (error) {
           console.log(error);
         }
@@ -101,6 +102,7 @@ const Banners = () => {
     setShow(!show);
     setIsUpdateMode(false);
     setForm(defaultBanner);
+    setIsRefresh(!isRefresh);
   };
 
   const updateHandler = (banner) => {

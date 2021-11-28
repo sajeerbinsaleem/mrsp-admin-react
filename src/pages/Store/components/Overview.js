@@ -25,6 +25,7 @@ const Overview = (props) => {
   const [store, setStore] = useState(null);
   const [show, setShow] = useState(false);
   const [franchiseList, setFranchiseList] = useState([]);
+  const [isRefresh, setIsRefresh] = useState(false);
   const storeId = useParams().storeId;
   const simpleValidator = useRef(new SimpleReactValidator());
 
@@ -46,10 +47,11 @@ const Overview = (props) => {
       console.log("An error occurd.");
       console.log(error);
     }
-  }, []);
+  }, [isRefresh]);
 
   const modalHandler = () => {
     setShow(!show);
+    setIsRefresh(!isRefresh);
     // console.log(franchiseList);
   };
   const submitHandler = async (event) => {
@@ -67,7 +69,7 @@ const Overview = (props) => {
       formData.append("franchise_id", store.franchise_id);
       try {
         const response = await axios.put(`${api_url}vendor/update/${storeId}`);
-        // console.log(response);
+        modalHandler();
       } catch (error) {
         console.log(error);
       }

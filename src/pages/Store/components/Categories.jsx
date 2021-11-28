@@ -11,7 +11,7 @@ import {
   Label,
   Input,
 } from "reactstrap";
-import env from 'react-dotenv';
+import env from "react-dotenv";
 
 import Modal from "./Modal";
 import store from "../../../store/index";
@@ -37,6 +37,7 @@ const Categories = () => {
   const [form, setForm] = useState(default_categtory);
   const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
+  const [isRefresh, setIsRefresh] = useState(false);
 
   const postForm = {
     store_id: storeId,
@@ -54,7 +55,7 @@ const Categories = () => {
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, [isRefresh]);
 
   const formChangeHandler = (event) => {
     switch (event.target.name) {
@@ -97,7 +98,7 @@ const Categories = () => {
             api_url + `productCategory/update/${form.id}`,
             formData
           );
-          console.log(response);
+          modalHandler();
         } catch (error) {
           console.log(error);
         }
@@ -108,7 +109,7 @@ const Categories = () => {
             api_url + "productCategory",
             formData
           );
-          console.log(response);
+          modalHandler();
         } catch (error) {
           console.log(error);
         }
@@ -124,6 +125,7 @@ const Categories = () => {
       setForm(default_categtory);
     }
     setIsUpdateMode(false);
+    setIsRefresh(!isRefresh);
   };
 
   const updateHandler = (category) => {

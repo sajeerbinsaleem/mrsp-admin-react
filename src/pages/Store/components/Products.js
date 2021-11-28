@@ -37,6 +37,7 @@ const Products = () => {
   const [show, setShow] = useState(false);
   const [isUpdateMode, setIsUpdateMode] = useState(false);
   const [form, setForm] = useState(default_product);
+  const [isRefresh, setIsRefresh] = useState(false);
 
   const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
@@ -57,7 +58,7 @@ const Products = () => {
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, [isRefresh]);
 
   const formChangeHandler = (event) => {
     switch (event.target.name) {
@@ -118,12 +119,13 @@ const Products = () => {
             api_url + `product/update/${form.id}`,
             formData
           );
+          modalHandler();
         } catch (error) {}
       } else {
         formData.append("image", form.product_image, form.product_image.name);
         try {
-          console.log(formData);
           await axios.post(api_url + "product", formData);
+          modalHandler();
         } catch (error) {}
       }
     } else {
@@ -139,6 +141,7 @@ const Products = () => {
     if (isUpdateMode) {
       setIsUpdateMode(false);
     }
+    setIsRefresh(!isRefresh);
   };
 
   const updateHandler = (product) => {

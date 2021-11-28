@@ -24,6 +24,7 @@ const Notification = () => {
   const [notifications, setNotifications] = useState(null);
   const storeId = useParams().storeId;
   const [deleteShow, setDeleteShow] = useState(false);
+  const [isRefresh, setIsRefresh] = useState(false);
   const simpleValidator = useRef(new SimpleReactValidator());
   const defaultNotification = {
     title_en: "",
@@ -49,10 +50,11 @@ const Notification = () => {
       );
       await setNotifications(response.data.data);
     } catch (error) {}
-  }, []);
+  }, [isRefresh]);
 
   const deleteShowHandler = (id) => {
     setDeleteShow(!deleteShow);
+    setIsRefresh(!isRefresh);
     setCreateNotification({ ...createNotification, id });
   };
 
@@ -68,7 +70,10 @@ const Notification = () => {
     }
   };
 
-  const modalHandler = () => setShow(!show);
+  const modalHandler = () => {
+    setShow(!show);
+    setIsRefresh(!isRefresh);
+  };
   const submitHandler = async (event) => {
     event.preventDefault();
     if (simpleValidator.current.allValid()) {
@@ -86,9 +91,8 @@ const Notification = () => {
           formData,
           store.getState().user.requestHeader
         );
-        console.log(response);
         setCreateNotification(defaultNotification);
-        setShow(!show);
+        modalHandler();
       } catch (error) {}
     } else {
       simpleValidator.current.showMessages();
