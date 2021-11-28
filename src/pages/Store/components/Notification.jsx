@@ -64,7 +64,7 @@ const Notification = () => {
         api_url + `push-notifications/${id}`,
         store.getState().user.requestHeader
       );
-      console.log(response);
+      deleteShowHandler();
     } catch (error) {
       console.log(error);
     }

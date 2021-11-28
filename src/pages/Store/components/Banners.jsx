@@ -78,7 +78,6 @@ const Banners = () => {
       formData.append("image", form.image);
       formData.append("store_id", storeId);
       formData.append("type", form.title);
-      console.log(form.image);
       if (isUpdateMode) {
         const response = await axios.put(
           api_url + `storeBanner/update/${form.id}`,
