@@ -102,7 +102,7 @@ export default class AddFranchiseModal extends React.Component {
     console.log(store.getState().user.requestHeader);
     axios
       .get(
-        "http://localhost:5002/" + "api/v1/location",
+        "https://api.keralashoppie.com/" + "api/v1/location",
         store.getState().user.requestHeader
       )
       .then((result) => {
@@ -123,8 +123,7 @@ export default class AddFranchiseModal extends React.Component {
       formData.append("francise_rate", this.state.franchise.francise_rate);
       formData.append("del_range", this.state.franchise.del_range);
       formData.append("email", this.state.franchise.email);
-      formData.append("location_id", 0);
-      // formData.append("location_id", this.state.franchise.location_id);
+      formData.append("location_id", this.state.franchise.location_id);
       formData.append("password", this.state.franchise.password);
       formData.append("phone", this.state.franchise.phone);
       formData.append("lat", this.state.franchise.lat);
@@ -216,6 +215,7 @@ export default class AddFranchiseModal extends React.Component {
                   <FormGroup>
                     <Label for="examplePassword">Password</Label>
                     <Input
+                    type='password'
                       name="password"
                       onChange={this.handleChange}
                       value={this.state.franchise.password}
@@ -247,7 +247,7 @@ export default class AddFranchiseModal extends React.Component {
                     >
                       {this.state.locations.map((loc) => (
                         <option value={loc.id} key={loc.id}>
-                          {loc.location}
+                          {loc.district}
                         </option>
                       ))}
                     </Input>

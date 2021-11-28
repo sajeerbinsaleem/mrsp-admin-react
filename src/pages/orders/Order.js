@@ -58,9 +58,13 @@ import joystickIcon from "../../assets/tables/joystickIcon.svg";
 import basketIcon from "../../assets/tables/basketIcon.svg";
 import store from "../../store/index.js";
 import AddShopModal from "../../components/AddShopModal";
+
+import Model from "../Store/components/Modal";
+
 // import s from "./Dashboard.module.scss";
 import s from "./Tables.module.scss";
 const api_url = "https://api.keralashoppie.com/";
+
 // env.API_URL? env.API_URL : 'http://localhost:8000/api/v1/'
 const options = {
   autoClose: 4000,
@@ -76,6 +80,9 @@ class Order extends React.Component {
     this.toggleOne = this.toggleOne.bind(this);
     this.toggleTwo = this.toggleTwo.bind(this);
     this.toggleThree = this.toggleThree.bind(this);
+    this.onStatusChange = this.onStatusChange.bind(this);
+    this.updateHandler = this.updateHandler.bind(this);
+    this.onUpdateSubmit = this.onUpdateSubmit.bind(this);
 
     this.state = {
       dropdownOpenOne: false,
@@ -93,6 +100,9 @@ class Order extends React.Component {
       show: false,
       language: store.getState().user.language,
       current_page: 1,
+      editShow: false,
+      status: null,
+      id: null,
     };
     store.subscribe(this.handleStoreUpdate);
   }
@@ -142,6 +152,10 @@ class Order extends React.Component {
   };
   toggle = () => {
     this.setState({ modal: !this.state.modal });
+  };
+
+  handleEditShow = () => {
+    this.setState({ editShow: !this.state.editShow });
   };
 
   getStores = (page) => {
@@ -201,9 +215,85 @@ class Order extends React.Component {
   componentDidMount() {
     this.getStores(1);
   }
+
+  updateHandler(id) {
+    this.setState({
+      status: this.state.orders.find((order) => order.order_id === id).status,
+    });
+    this.setState({ id });
+    this.handleEditShow();
+  }
+
+  onStatusChange(event) {
+    event.preventDefault();
+    this.setState({ status: event.target.value });
+  }
+
+  async onUpdateSubmit(event) {
+    event.preventDefault();
+
+    try {
+      const response = await axios.put(
+        api_url + `api/v1/dashboard-orders/${this.state.id}`,
+        { status: this.state.status },
+        store.getState().user.requestHeader
+      );
+      console.log(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   render() {
     return (
       <div>
+        <Model
+          show={this.state.editShow}
+          modalHandler={this.handleEditShow}
+          title="Update Order"
+          submitHandler={this.onUpdateSubmit}
+        >
+          <Row>
+            <Col md="12">
+              <FormGroup check>
+                <legend className="col-form-label col-sm-2">Status</legend>
+                <Col>
+                  <Label check>accepted : </Label>
+                  <Input
+                    name="status"
+                    className="ml-2"
+                    value="accepted"
+                    type="radio"
+                    checked={this.state.status === "accepted"}
+                    onChange={this.onStatusChange}
+                  />
+                </Col>
+                <Col>
+                  <Label check>pending : </Label>
+                  <Input
+                    name="status"
+                    className="ml-2"
+                    value="pending"
+                    type="radio"
+                    checked={this.state.status === "pending"}
+                    onChange={this.onStatusChange}
+                  />
+                </Col>
+                <Col>
+                  <Label check>delivered : </Label>
+                  <Input
+                    name="status"
+                    className="ml-2"
+                    value="delivered"
+                    type="radio"
+                    checked={this.state.status === "delivered"}
+                    onChange={this.onStatusChange}
+                  />
+                </Col>
+              </FormGroup>
+            </Col>
+          </Row>
+        </Model>
         <Row>
           <Col>
             <Row className="mb-4">
@@ -257,16 +347,21 @@ class Order extends React.Component {
                             </td>
                             <td>
                               <a style={{ padding: "3px" }}>
-                                <Badge color={"secondary-cyan"}>
+                                <Button
+                                  color={"secondary-cyan"}
+                                  onClick={() => {
+                                    this.updateHandler(item.order_id);
+                                  }}
+                                >
                                   {" "}
                                   <Icons.Edit />
-                                </Badge>
+                                </Button>
                               </a>
                               <a style={{ padding: "3px" }}>
-                                <Badge color={"secondary-red"}>
+                                <Button color={"secondary-red"}>
                                   {" "}
                                   <Icons.Delete />
-                                </Badge>
+                                </Button>
                               </a>
                             </td>
                           </tr>

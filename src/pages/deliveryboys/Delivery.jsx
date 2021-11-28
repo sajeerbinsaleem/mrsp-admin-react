@@ -32,6 +32,7 @@ const defaultBoy = {
   address: "",
   document: null,
   id: null,
+  status: null,
 };
 
 const defaultCoordinates = {
@@ -41,6 +42,7 @@ const defaultCoordinates = {
 
 const Delivery = () => {
   const [deliveryTable, setDeliveryTable] = useState(null);
+  const [isRefresh, setIsRefresh] = useState(false);
   const [pageLimit, setPageLimit] = useState(1);
   const [boy, setBoy] = useState(defaultBoy);
   const [isUpdateMode, setIsUpdateMode] = useState(false);
@@ -57,7 +59,7 @@ const Delivery = () => {
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, [isRefresh]);
 
   const refresh = () => {};
   const fetchData = () => {};
@@ -69,6 +71,7 @@ const Delivery = () => {
       setCoordiantes(defaultCoordinates);
       setBoy(defaultBoy);
     }
+    refreshPage();
     simpleValidator.current.hideMessages();
   };
 
@@ -76,9 +79,12 @@ const Delivery = () => {
     setCoordiantes({ lat, lng });
   };
 
+  const refreshPage = () => {
+    setIsRefresh(!isRefresh);
+  };
+
   const submitHandler = async (event) => {
     event.preventDefault();
-    console.log(simpleValidator.current.errorMessages);
     if (simpleValidator.current.allValid()) {
       const formData = new FormData();
       formData.append("full_name", boy.name);
@@ -97,18 +103,21 @@ const Delivery = () => {
             formData,
             store.getState().user.requestHeader
           );
+          setShow(!show);
+          refreshPage();
         } catch (error) {}
       } else {
-        console.log("called");
         formData.append("document_url", boy.document);
         try {
-          console.log(boy.id);
+          formData.append("status", boy.status);
           const response = await axios.put(
             api_url + `delivery-boy/${boy.id}`,
             formData,
             store.getState().user.requestHeader
           );
-          console.log(response);
+          setShow(!show);
+          refreshPage();
+          console.log(response)
         } catch (error) {
           console.log(error);
         }
@@ -124,16 +133,18 @@ const Delivery = () => {
         setBoy({ ...boy, image: event.target.files[0] });
         break;
       case "document":
-        console.log(event.target.files);
         setBoy({ ...boy, document: event.target.files[0] });
+        break;
+      case "status":
+        setBoy({ ...boy, status: event.target.value === "true" });
         break;
       default:
         setBoy({ ...boy, [event.target.name]: event.target.value });
+        break;
     }
   };
 
   const updateModeHandler = (currentBoy) => {
-    console.log(currentBoy);
     setIsUpdateMode(!isUpdateMode);
     setBoy({
       name: currentBoy.full_name,
@@ -144,6 +155,7 @@ const Delivery = () => {
       document: currentBoy.document_url,
       address: currentBoy.address,
       id: currentBoy.id,
+      status: currentBoy.status,
     });
 
     setCoordiantes({
@@ -205,6 +217,31 @@ const Delivery = () => {
                 {simpleValidator.current.message("city", boy.city, "required", {
                   className: "text-danger",
                 })}
+              </FormGroup>
+              <FormGroup check>
+                <legend className="col-form-label col-sm-2">Status</legend>
+                <Col>
+                  <Label check>Active : </Label>
+                  <Input
+                    name="status"
+                    className="ml-2"
+                    value={true}
+                    type="radio"
+                    checked={boy.status === true}
+                    onChange={handleChange}
+                  />
+                </Col>
+                <Col>
+                  <Label check>Inactive : </Label>
+                  <Input
+                    name="status"
+                    className="ml-2"
+                    value={false}
+                    checked={boy.status === false}
+                    type="radio"
+                    onChange={handleChange}
+                  />
+                </Col>
               </FormGroup>
             </Col>
             <Col md="6" sm="12">
@@ -369,7 +406,13 @@ const Delivery = () => {
                     <td>{deliveryBoy.phone_number}</td>
                     <td>{deliveryBoy.city}</td>
                     <td>{deliveryBoy.email}</td>
-                    <td>{deliveryBoy.status}</td>
+                    <td>
+                      {deliveryBoy.status ? (
+                        <span className="badge badge-success">Active</span>
+                      ) : (
+                        <span className="badge badge-danger">Inactive</span>
+                      )}
+                    </td>
                     <td>
                       <Button
                         color="warning"

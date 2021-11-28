@@ -18,7 +18,7 @@ import * as Api from "../../modules/ApiClient";
 import * as LocalCache from "../../modules/LocalCache";
 import SimpleReactValidator from "simple-react-validator";
 
-import loginImage from "../../assets/logo.png";
+import loginImage from '../../assets/logo.png';
 import SofiaLogo from "../../components/Icons/SidebarIcons/SofiaLogo.js";
 import GoogleIcon from "../../components/Icons/AuthIcons/GoogleIcon.js";
 import TwitterIcon from "../../components/Icons/AuthIcons/TwitterIcon.js";
@@ -74,10 +74,10 @@ class Login extends React.Component {
             switch (result.role) {
               case "admin":
                 // code block
-                this.props.history.push("/app/dashboard");
+                this.props.history.push("/app/orders");
                 break;
               case "franchise":
-                this.props.history.push("/app/franchise/dashboard");
+                this.props.history.push("/app/orders");
                 break;
               case "vendor":
                 // code block
@@ -120,7 +120,7 @@ class Login extends React.Component {
                   <p className="auth-header mb-0">Login</p>
                   <div className="logo-block">
                     {/* <SofiaLogo /> */}
-                    <p className="mb-0">Keralashoppie</p>
+                    <p className="mb-0">MisterShoopie</p>
                   </div>
                 </div>
 

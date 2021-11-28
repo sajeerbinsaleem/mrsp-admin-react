@@ -84,7 +84,7 @@ class Layout extends React.Component {
               <Route
                 path="/app"
                 exact
-                render={() => <Redirect to="app/dashboard" />}
+                render={() => <Redirect to="/app/orders" />}
               />
               <Route path="/app/banners" exact component={Banners} />
               <Route path="/app/maps" exact component={Map} />
@@ -107,7 +107,11 @@ class Layout extends React.Component {
                 exact
                 component={FranchiseDashboard}
               />
-              <Route path="/app/dashboard" exact component={Dashboard} />
+              <Route
+                path="/app/dashboard"
+                exact
+                render={() => <Redirect to="/app/orders" />}
+              />
               <Route path="/app/franchise" exact component={Franchise} />
               <Route path="/app/locations" exact component={Locations} />
               <Route path="/app/typography" exact component={Typography} />

@@ -20,7 +20,7 @@ class ErrorPage extends React.Component {
           <p className={s.errorHelp}>
             But we're here to bring you back to safety
           </p>
-          <Link to="/template/dashboard">
+          <Link to="/app/dashboard">
             <Button className={`${s.errorBtn} rounded-pill`} type="submit" color="secondary-red">
               Back to Home
             </Button>
