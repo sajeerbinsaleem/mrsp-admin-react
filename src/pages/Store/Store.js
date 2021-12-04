@@ -14,7 +14,9 @@ import Categories from "./components/Categories";
 import Banners from "./components/Banners";
 import Notification from "./components/Notification";
 
-const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // const api_url = "http://localhost:3001/api/v1/";
 
 const Store = () => {
@@ -25,7 +27,7 @@ const Store = () => {
   useEffect(async () => {
     console.log(storeId);
     try {
-      const response = await axios.get(api_url + `vendor/show/${storeId}`);
+      const response = await axios.get(api_url + `api/v1/vendor/show/${storeId}`);
       setStore(response.data.data);
     } catch (error) {
       console.log("An error occurd.");
@@ -38,7 +40,7 @@ const Store = () => {
     "Products",
     "Catagories",
     "Banners",
-    "Reports",
+    // "Reports",
     "Notification",
   ];
 

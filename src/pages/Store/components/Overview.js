@@ -18,7 +18,9 @@ import Modal from "./Modal";
 import store_1 from "../../../store/index";
 import env from "react-dotenv";
 
-const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // const api_url = "http://localhost:3001/api/v1/";
 
 const Overview = (props) => {
@@ -31,9 +33,9 @@ const Overview = (props) => {
 
   useEffect(async () => {
     try {
-      const response = await axios.get(api_url + `vendor/show/${storeId}`);
+      const response = await axios.get(api_url + `api/v1/vendor/show/${storeId}`);
       const franchiseRespone = await axios.get(
-        api_url + "franchise/list",
+        api_url + "api/v1/franchise/list",
         store_1.getState().user.requestHeader
       );
       await setStore(response.data.data);
@@ -68,7 +70,7 @@ const Overview = (props) => {
       formData.append("store_status", store.store_status);
       formData.append("franchise_id", store.franchise_id);
       try {
-        const response = await axios.put(`${api_url}vendor/update/${storeId}`);
+        const response = await axios.put(`${api_url}api/v1/vendor/update/${storeId}`);
         modalHandler();
       } catch (error) {
         console.log(error);

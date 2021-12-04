@@ -17,7 +17,9 @@ import env from "react-dotenv";
 
 import Modal from "./Modal";
 
-const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // const api_url = "http://localhost:3001/api/v1/";
 
 const Notification = () => {
@@ -45,7 +47,7 @@ const Notification = () => {
   useEffect(async () => {
     try {
       const response = await axios.get(
-        api_url + "push-notifications?store_id=" + storeId,
+        api_url + "api/v1/push-notifications?store_id=" + storeId,
         store.getState().user.requestHeader
       );
       await setNotifications(response.data.data);
@@ -61,7 +63,7 @@ const Notification = () => {
   const deleteHandler = (id) => {
     try {
       const response = axios.delete(
-        api_url + `push-notifications/${id}`,
+        api_url + `api/v1/push-notifications/${id}`,
         store.getState().user.requestHeader
       );
       deleteShowHandler();
@@ -87,7 +89,7 @@ const Notification = () => {
 
       try {
         const response = await axios.post(
-          api_url + "push-notifications",
+          api_url + "api/v1/push-notifications",
           formData,
           store.getState().user.requestHeader
         );

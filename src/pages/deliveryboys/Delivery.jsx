@@ -21,7 +21,9 @@ import Map from "../../components/Map/Map";
 
 import "./Delivery.scss";
 
-const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // const api_url = "http://localhost:3001/api/v1/";
 
 const defaultBoy = {
@@ -53,7 +55,7 @@ const Delivery = () => {
   useEffect(async () => {
     try {
       const response = await axios.get(
-        api_url + `delivery-boy?limit=10&offset=${0}&franchise_id=0`,
+        api_url + `api/v1/delivery-boy?limit=10&offset=${0}&franchise_id=0`,
         store.getState().user.requestHeader
       );
       await setDeliveryTable(response.data.data);
@@ -100,7 +102,7 @@ const Delivery = () => {
         try {
           formData.append("document", boy.document);
           const response = await axios.post(
-            api_url + `delivery-boy`,
+            api_url + `api/v1/delivery-boy`,
             formData,
             store.getState().user.requestHeader
           );
@@ -112,7 +114,7 @@ const Delivery = () => {
         try {
           formData.append("status", boy.status);
           const response = await axios.put(
-            api_url + `delivery-boy/${boy.id}`,
+            api_url + `api/v1/delivery-boy/${boy.id}`,
             formData,
             store.getState().user.requestHeader
           );

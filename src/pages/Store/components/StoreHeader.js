@@ -3,12 +3,12 @@ import { Container, Row, Col } from "reactstrap";
 
 const StoreHeader = (props) => {
   return (
-    <Container className="container-fluid ml-0">
+    <div className="container-fluid ml-0">
       <Row className="justify-content-start">
-        <Col className="col-3">
+        <Col className="col-md-3 col-sm-12">
           <img className="store--img" src={props.img} alt="not found" />
         </Col>
-        <Col className="col-9">
+        <Col className="col-md-9 col-sm-12">
           <Row>
             <Col className="col-12 mt-5">
               <h1>{props.title}</h1>
@@ -19,7 +19,7 @@ const StoreHeader = (props) => {
           </Row>
         </Col>
       </Row>
-    </Container>
+    </div>
   );
 };
 

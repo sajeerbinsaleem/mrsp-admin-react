@@ -8,7 +8,9 @@ import { io } from "socket.io-client";
 
 import store from "../../store/index.js";
 import "./chat.css";
-const api_url = "https://api.keralashoppie.com/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // env.API_URL? env.API_URL : 'http://localhost:8000/api/v1/'
 // const api_url = 'http://localhost:5002/';
 // const AUTH_PARMS = {'id':16, token: 'PL8JtlGm6qNiyxaCdSdgtKbq4YR5C2cACjRkwmCfhdsDFxB8K5Ku9cfAXBCI', clientId: 'tutelle'};
@@ -16,7 +18,7 @@ const api_url = "https://api.keralashoppie.com/";
 //    query: "id= " + JSON.stringify(AUTH_PARMS)});
 
 const socket = io(
-  "http://localhost:5002/sockets",
+  api_url+"sockets",
   // const socket = io("https://api.keralashoppie.com/sockets",
   {
     transports: ["websocket", "polling", "flashsocket"],

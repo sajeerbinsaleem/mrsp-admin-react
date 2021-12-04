@@ -43,7 +43,9 @@ import store from "../../store/index.js";
 import AddShopModal from "../../components/AddBannerModal";
 // import s from "./Dashboard.module.scss";
 import s from "./Tables.module.scss";
-const api_url = "https://api.keralashoppie.com/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // env.API_URL ? env.API_URL : "http://localhost:8000/api/v1/";
 const options = {
   autoClose: 4000,

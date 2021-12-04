@@ -52,7 +52,7 @@ class Login extends React.Component {
   };
 
   mySubmitHandler = (event, type) => {
-    this.props.history.push("/app/dashboard");
+    // this.props.history.push("/app/dashboard");
     event.preventDefault();
     this.setState({ loginFlag: true });
     if (this.validator.allValid()) {
@@ -69,6 +69,7 @@ class Login extends React.Component {
           //add franchise id
           LocalCache.setToken(result.access_token);
           LocalCache.setRole(result.role);
+          console.log('result.access_token',result.access_token,LocalCache.getToken())
 
           if (result.status == true) {
             switch (result.role) {
@@ -87,15 +88,22 @@ class Login extends React.Component {
             }
             // this.props.history.push("/home")
           } else {
+            alert('login failed. password incorrect');
             console.log("errorssssdd", result);
+            
           }
         })
         .catch((e) => {
           console.log("errorssss", e);
+          alert('login failed. password incorrect');
+          this.setState({ loginFlag: false });
+
         });
     } else {
       this.validator.showMessages();
       this.forceUpdate();
+      this.setState({ loginFlag: false });
+
     }
   };
 
@@ -112,7 +120,6 @@ class Login extends React.Component {
 
     return (
       <div className="auth-page">
-        <Container className="col-12">
           <Row className="d-flex align-items-center">
             <Col xs={12} lg={6} className="left-column">
               <Widget className="widget-auth widget-p-lg">
@@ -229,7 +236,6 @@ class Login extends React.Component {
               </div>
             </Col>
           </Row>
-        </Container>
         <Footer />
       </div>
     );

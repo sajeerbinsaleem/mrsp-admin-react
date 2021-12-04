@@ -44,7 +44,9 @@ import AddShopModal from "../../components/AddShopModal";
 // import s from "./Dashboard.module.scss";
 import s from "./Tables.module.scss";
 import { Link } from "react-router-dom";
-const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // const api_url = "http://localhost:3001/api/v1/";
 // env.API_URL ? env.API_URL :
 const options = {
@@ -132,7 +134,7 @@ class Dashboard extends React.Component {
   getStores = (page) => {
     axios
       .get(
-        api_url + "dashboard-shops?franchise_id=1&limit=10&page=" + page,
+        api_url + "api/v1/dashboard-shops?franchise_id=1&limit=10&page=" + page,
         store.getState().user.requestHeader
       )
       .then((result) => {
@@ -167,7 +169,7 @@ class Dashboard extends React.Component {
     this.setState({ formFlag: true });
     console.log(e);
     axios
-      .post(api_url + "vendor/store", e)
+      .post(api_url + "api/v1/vendor/store", e)
       .then((result) => {
         this.setState({ formFlag: false });
         toast(

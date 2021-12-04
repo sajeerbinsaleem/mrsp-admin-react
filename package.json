@@ -78,7 +78,8 @@
       "APP_URL",
       "API_URLs",
       "API_URL",
-      "LOGIN_URL"
+      "LOGIN_URL",
+      "MODE"
     ]
   }
 }

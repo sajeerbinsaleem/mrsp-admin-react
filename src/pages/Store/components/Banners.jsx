@@ -22,7 +22,9 @@ import Modal from "./Modal";
 import store from "../../../store/index";
 import SimpleReactValidator from "simple-react-validator";
 
-const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // const api_url = "http://localhost:3001/api/v1/";
 
 const defaultBanner = {
@@ -46,7 +48,7 @@ const Banners = () => {
   useEffect(async () => {
     try {
       const response = await axios.post(
-        api_url + "banners/shop",
+        api_url + "api/v1/banners/shop",
         {
           store_id: storeId,
         },
@@ -80,13 +82,13 @@ const Banners = () => {
       formData.append("type", form.title);
       if (isUpdateMode) {
         const response = await axios.put(
-          api_url + `storeBanner/update/${form.id}`,
+          api_url + `api/v1/storeBanner/update/${form.id}`,
           formData
         );
         modalHandler();
       } else {
         try {
-          const response = await axios.post(api_url + "storeBanner", formData);
+          const response = await axios.post(api_url + "api/v1/storeBanner", formData);
           modalHandler();
         } catch (error) {
           console.log(error);
@@ -121,7 +123,7 @@ const Banners = () => {
 
   const deleteHandler = (id) => {
     try {
-      const response = axios.delete(api_url + `storeBanner/${id}`);
+      const response = axios.delete(api_url + `api/v1/storeBanner/${id}`);
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -205,7 +207,7 @@ const Banners = () => {
                       <CardTitle tag="h4">{banner.banner_name}</CardTitle>
                       <CardText>
                         Created at :{" "}
-                        {banner.created_at.slice(
+                        {/* {banner.created_at.slice(
                           0,
                           banner.created_at.indexOf("T")
                         )}{" "}
@@ -213,7 +215,7 @@ const Banners = () => {
                         {banner.created_at.substring(
                           banner.created_at.indexOf("T") + 1,
                           banner.created_at.indexOf("T") + 9
-                        )}
+                        )} */}
                       </CardText>
                     </Col>
                     <Col className="d-flex justify-content-end align-items-center">

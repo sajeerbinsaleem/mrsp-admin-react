@@ -10,7 +10,6 @@ import {
   Label,
   Input,
   Col,
-  CustomInput
 } from "reactstrap";
 
 import SimpleReactValidator from "simple-react-validator";
@@ -34,142 +33,132 @@ const default_product = {
   product_image: null,
   id: null,
 };
+export default class Products extends React.Component {
+  constructor(props) {
+    super(props);
 
-const Products = () => {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [show, setShow] = useState(false);
-  const [isUpdateMode, setIsUpdateMode] = useState(false);
-  const [form, setForm] = useState(default_product);
-  const [isRefresh, setIsRefresh] = useState(false);
-  const simpleValidator = useRef(new SimpleReactValidator());
-  const storeId = useParams().storeId;
+    this.toggleOne = this.toggleOne.bind(this);
+    this.toggleTwo = this.toggleTwo.bind(this);
+    this.toggleThree = this.toggleThree.bind(this);
 
-  const postForm = {
-    store_id: storeId,
-    page: 0,
+    this.state = {
+      show: false,
+      isUpdateMode: false,
+      form: default_product,
+      isRefresh: false,
+      checkboxes: [false, true],
+      secondTableCurrentPage: 1,
+      products: [],
+      storeId : this.props.match.params.id,
+      language: store.getState().user.language,
+    };
+    store.subscribe(this.handleStoreUpdate);
+    this.simpleValidator = new SimpleReactValidator();
+  }
+  handleStoreUpdate = () => {
+    this.setState({ language: store.getState().user.language });
   };
-
-  useEffect(() => {
-
-    fetchProducts();
-    fetchCategories();
-   
-  }, []);
-
-  const fetchProducts = () =>{
+  componentDidMount =  () => {
+    const postForm = {
+      store_id: this.state.storeId,
+      page: 0,
+    };
     axios.post(
       api_url + "api/v1/products?limit=3",
       postForm,
       store.getState().user.requestHeader
     ).then(response =>{
-      setProducts(response.data.data);
+      alert('console vlaue',this.state.isUpdateMode)
+      this.setState({products : response.data.data})
 
     }).catch(error => {
       console.log(error);
     })
   }
-  const fetchCategories = () =>{
-    axios.post(
-      api_url + "api/v1/categories/product",
-      postForm,
-      store.getState().user.requestHeader
-    ).then(response =>{
-      setCategories(response.data.data);
 
-    }).catch(error => {
-      console.log(error);
-    })
-  }
-  
-  const formChangeHandler = (event) => {
-    console.log(event)
+  formChangeHandler = (event) => {
+
+    this.setState({})
+    
+    
     switch (event.target.name) {
       case "product_name_en":
-        setForm({
-          ...form,
-          product_name: {
-            en: event.target.value,
-            ml: form.product_name.ml,
-          },
-        });
+        var name_obj =  {
+          en: event.target.value,
+          ml: form.product_name.ml,
+        }
+        this.setState(currentState => ({form: {...currentState.form, ["product_name"]: name_obj}}));
         break;
       case "product_name_ml":
+        var name_obj =  {
+          ml: event.target.value,
+          en: this.state.form.product_name.en,
+        }
         setForm({
           ...form,
           product_name: {
             ml: event.target.value,
-            en: form.product_name.en,
+            en: this.state.form.product_name.en,
           },
         });
         break;
       case "product_price":
-        setForm({ ...form, price: event.target.value });
+        this.setState(currentState => ({form: {...currentState.form, ["price"]: event.target.value}}));
         break;
       case "product_offer_price":
-        setForm({ ...form, offer_price: event.target.value });
+        this.setState(currentState => ({form: {...currentState.form, ["offer_price"]: event.target.value}}));
         break;
-      case "product_image":
+      case "image":
         if (isUpdateMode && form.product_image) {
           return;
         }
-        setForm({ ...form, ["product_image"]: event.target.files[0] });
-        break;
-      case "is_available":
-        setForm({ ...form, ["is_available"]: event.target.value });
+        this.setState(currentState => ({form: {...currentState.form, ["product_image"]: event.target.value}}));
+
         break;
       default:
-        
         break;
     }
-  };
+  }
 
-  
-  const submitHandler = async (event) => {
-    console.log('vallllls',form.product_image)
-
+  submitHandler = async (event) => {
     event.preventDefault();
-    if (simpleValidator.current.allValid()) {
+    if (this.simpleValidator.current.allValid()) {
       console.log('everything okay')
       const formData = new FormData();
-      formData.append("product_name_en", form.product_name.en);
-      formData.append("product_name_ml", form.product_name.ml);
-      formData.append("price", form.price);
-      formData.append("offer_price", form.offer_price);
-      formData.append("product_varient_id", form.product_varient_id);
-      formData.append("isAvailable", form.isAvailable);
+      formData.append("product_name_en", this.state.form.product_name.en);
+      formData.append("product_name_ml", this.state.form.product_name.ml);
+      formData.append("price", this.state.form.price);
+      formData.append("offer_price", this.state.form.offer_price);
       formData.append("categories", 7);
       formData.append("quantity", 1);
-      formData.append("store_id", storeId);
+      formData.append("store_id", this.state.storeId);
       formData.append("unit", 1);
       formData.append("type", 1);
       formData.append("added_by", 1);
       // formData.append("added_by", store.getState().user.id);
-      console.log(isUpdateMode)
 
-      if (isUpdateMode) {
+      if (this.state.isUpdateMode) {
         try {
           const response = await axios.put(
-            api_url + `api/v1/product-varient/${form.product_varient_id}`,
-            formData,store.getState().user.requestHeader
+            api_url + `api/v1/product/update/${this.state.form.id}`,
+            formData
           );
           modalHandler();
-          fetchProducts();
         } catch (error) {}
       } else {
-        formData.append("image", form.product_image, form.product_image.name);
+        formData.append("image", this.state.form.product_image, this.state.form.product_image.name);
         try {
           await axios.post(api_url + "api/v1/product", formData);
           modalHandler();
         } catch (error) {}
       }
     } else {
-      console.log(simpleValidator,'validator filed')
+      console.log('validator filed')
       simpleValidator.current.showMessages();
     }
-  };
+  }
 
-  const modalHandler = () => {
+  modalHandler = () => {
     setShow(!show);
     if (!isUpdateMode) {
       setForm(default_product);
@@ -178,15 +167,17 @@ const Products = () => {
       setIsUpdateMode(false);
     }
     setIsRefresh(!isRefresh);
-  };
+  }
 
-  const updateHandler = (product) => {
+  updateHandler = (product) => {
     setIsUpdateMode(!isUpdateMode);
     setForm({ ...product });
     setShow(!show);
     alert('tesssst',isUpdateMode);
 
-  };
+  }
+
+  render() {
 
   return (
     <>
@@ -213,10 +204,10 @@ const Products = () => {
                       </Label>
                       <Input
                         name="product_name_en"
-                        onChange={formChangeHandler}
-                        value={form.product_name.en}
+                        onChange={this.formChangeHandler}
+                        value={this.form.product_name.en}
                         onBlur={() =>
-                          simpleValidator.current.showMessageFor(
+                          this.simpleValidator.current.showMessageFor(
                             "product_name_en"
                           )
                         }
@@ -317,52 +308,32 @@ const Products = () => {
                     </FormGroup>
                   </Col>
                 </Row>
-                {/* <Col className="mt-3" md="6">
-                <FormGroup>
-                        <Label for="Image">Available </Label>
-                        <Col>
-                          
-                          <CustomInput 
-                            onChange={formChangeHandler}
-                            value={form.is_available}
-                            type="switch" id={'switch49'} name="is_available"  />
-                          
-                        </Col>
-                      </FormGroup>
-                
-                </Col> */}
-                <Col className="mt-3" md="6">
-                  <FormGroup>
-                  <Label for="Image">Categories</Label>
-                  <Col>
-                    <Input type="select" className="form-control" name="categories"  onChange={formChangeHandler}>
-                      {categories.map((cat,key) => (
-                      <option value={cat.id}>{cat.title.en}</option>
-
-                      ))}
-                    </Input>
-                    </Col>
-                  </FormGroup>
-                </Col>
-                <Col className="mt-3" md="6">
-                  {
-                    !isUpdateMode? (
-                      <FormGroup>
-                        <Label for="Image">Image {isUpdateMode}</Label>
-                        <Col>
-                          <Input
-                            onChange={formChangeHandler}
-                            id="formFile"
-                            name="product_image"
-                            type="file"
-                            className="form-control"
-                            
-                          />
-                          
-                        </Col>
-                      </FormGroup>
-                    ):''
-                  }
+                <Col className="mt-3" md="12">
+                  {!isUpdateMode && (
+                    <FormGroup>
+                      <Label for="Image">Image</Label>
+                      <Col>
+                        <Input
+                          onChange={formChangeHandler}
+                          id="formFile"
+                          name="image"
+                          type="file"
+                          className="form-control"
+                          onBlur={() =>
+                            simpleValidator.current.showMessageFor("image")
+                          }
+                        />
+                        {simpleValidator.current.message(
+                          "image",
+                          form.product_image,
+                          "required",
+                          {
+                            className: "text-danger",
+                          }
+                        )}
+                      </Col>
+                    </FormGroup>
+                  )}
                 </Col>
               </Row>
             </Form>
@@ -374,7 +345,6 @@ const Products = () => {
                 <th>Name</th>
                 <th>Price(₹)</th>
                 <th>Offer Price(₹)</th>
-                
                 <th>Update</th>
               </tr>
             </thead>
@@ -396,7 +366,6 @@ const Products = () => {
                   </td>
                   <td>{product.price}</td>
                   <td>{product.offer_price}</td>
-                  
                   <td>
                     <Button
                       color="warning"
@@ -413,6 +382,6 @@ const Products = () => {
       )}
     </>
   );
-};
+}
+}
 
-export default Products;

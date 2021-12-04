@@ -63,7 +63,11 @@ import Model from "../Store/components/Modal";
 
 // import s from "./Dashboard.module.scss";
 import s from "./Tables.module.scss";
-const api_url = "https://api.keralashoppie.com/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+console.log('env.MODE',env.MODE, default_url)
+
+const api_url =env.API_URL?env.API_URL: default_url;
 
 // env.API_URL? env.API_URL : 'http://localhost:8000/api/v1/'
 const options = {
@@ -358,10 +362,10 @@ class Order extends React.Component {
                                 </Button>
                               </a>
                               <a style={{ padding: "3px" }}>
-                                <Button color={"secondary-red"}>
+                                {/* <Button color={"secondary-red"}>
                                   {" "}
                                   <Icons.Delete />
-                                </Button>
+                                </Button> */}
                               </a>
                             </td>
                           </tr>

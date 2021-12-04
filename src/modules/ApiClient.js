@@ -1,7 +1,9 @@
 import env from "react-dotenv";
 import axios from "axios";
 
-const api_url = "https://api.keralashoppie.com/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // env.API_URL? env.API_URL : 'http://localhost:8000/api/v1/'
 // const app_url = env.APP_URL ? env.APP_URL : "http://localhost:8000/api/v1/";
 // const login_url = env.LOGIN_URL

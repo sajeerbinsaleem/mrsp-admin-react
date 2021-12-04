@@ -17,7 +17,9 @@ import Modal from "./Modal";
 import store from "../../../store/index";
 import SimpleReactValidator from "simple-react-validator";
 
-const api_url = env.API_URLs || "https://api.keralashoppie.com/api/v1/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // const api_url = "http://localhost:3001/api/v1/";
 
 const default_categtory = {
@@ -47,7 +49,7 @@ const Categories = () => {
   useEffect(async () => {
     try {
       const response = await axios.post(
-        api_url + "categories/product",
+        api_url + "api/v1/categories/product",
         postForm,
         store.getState().user.requestHeader
       );
@@ -95,7 +97,7 @@ const Categories = () => {
       if (isUpdateMode) {
         try {
           const response = await axios.put(
-            api_url + `productCategory/update/${form.id}`,
+            api_url + `api/v1/productCategory/update/${form.id}`,
             formData
           );
           modalHandler();
@@ -106,7 +108,7 @@ const Categories = () => {
         formData.append("image", form.image);
         try {
           const response = await axios.post(
-            api_url + "productCategory",
+            api_url + "api/v1/productCategory",
             formData
           );
           modalHandler();

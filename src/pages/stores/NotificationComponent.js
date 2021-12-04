@@ -43,7 +43,9 @@ import store from "../../store/index.js";
 import AddShopModal from "../../components/AddNotificationModal";
 // import s from "./Dashboard.module.scss";
 import s from "./Tables.module.scss";
-const api_url = "https://api.keralashoppie.com/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // env.API_URL? env.API_URL : 'http://localhost:8000/api/v1/'
 const options = {
   autoClose: 4000,
@@ -167,7 +169,7 @@ class NotificationComponent extends React.Component {
     console.log(e);
     // axios.post(api_url+'api/v1/homeBanner/store/',e
     axios
-      .post("http://localhost:5002/api/v1/pushNotification", e)
+      .post(api_url+"api/v1/pushNotification", e)
       .then((result) => {
         this.setState({ formFlag: false });
         this.getStores(1);

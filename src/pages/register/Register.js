@@ -27,7 +27,9 @@ import FacebookIcon from "../../components/Icons/AuthIcons/FacebookIcon.js";
 import GithubIcon from "../../components/Icons/AuthIcons/GithubIcon.js";
 import LinkedinIcon from "../../components/Icons/AuthIcons/LinkedinIcon.js";
 import { registerUser } from "../../actions/register.js";
-const api_url = "https://api.keralashoppie.com/";
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 // env.API_URL? env.API_URL : 'http://localhost:8000/api/v1/'
 // const api_url = 'http://localhost:5002/';
 
@@ -152,7 +154,6 @@ class Register extends React.Component {
 
     return (
       <div className="auth-page">
-        <Container className="col-12">
           <Row className="d-flex align-items-center">
             <Col xs={12} lg={6} className="left-column">
               <Widget className="widget-auth widget-p-lg">
@@ -160,7 +161,7 @@ class Register extends React.Component {
                   <p className="auth-header mb-0">Register </p>
                   <div className="logo-block">
                     <SofiaLogo />
-                    <p className="mb-0">keralashoppie</p>
+                    <p className="mb-0">Mistershoppie</p>
                   </div>
                 </div>
                 <div className="auth-info my-2">
@@ -350,7 +351,6 @@ class Register extends React.Component {
               </div>
             </Col>
           </Row>
-        </Container>
       </div>
     );
   }

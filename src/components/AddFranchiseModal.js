@@ -20,6 +20,11 @@ import {
 import store from "../store";
 import axios from "axios";
 import Map from "./Map/Map";
+import env from "react-dotenv";
+
+var app_mode = env.MODE ? env.MODE: 'development'
+var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
+const api_url =env.API_URL?env.API_URL: default_url;
 
 export default class AddFranchiseModal extends React.Component {
   constructor(props) {
@@ -102,7 +107,7 @@ export default class AddFranchiseModal extends React.Component {
     console.log(store.getState().user.requestHeader);
     axios
       .get(
-        "https://api.keralashoppie.com/" + "api/v1/location",
+        api_url + "api/v1/location",
         store.getState().user.requestHeader
       )
       .then((result) => {
@@ -245,6 +250,7 @@ export default class AddFranchiseModal extends React.Component {
                       onChange={this.handleChange}
                       value={this.state.franchise.location_id}
                     >
+                      <option value="0">select location </option>
                       {this.state.locations.map((loc) => (
                         <option value={loc.id} key={loc.id}>
                           {loc.district}
