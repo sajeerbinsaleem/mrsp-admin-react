@@ -133,7 +133,7 @@ export default class AddShopModal extends React.Component {
       formData.append("email", this.state.shop.email);
       formData.append("employee_name", this.state.shop.employee_name);
       formData.append("password", this.state.shop.password);
-      formData.append("phone", this.state.shop.phone);
+      formData.append("phone_number", this.state.shop.phone);
       formData.append("store_no", this.state.shop.store_no);
       formData.append("lat", this.state.shop.lat);
       formData.append("lng", this.state.shop.lng);

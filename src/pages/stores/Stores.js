@@ -169,7 +169,7 @@ class Dashboard extends React.Component {
     this.setState({ formFlag: true });
     console.log(e);
     axios
-      .post(api_url + "api/v1/vendor/store", e)
+      .post(api_url + "api/v1/vendor/store", e, store.getState().user.requestHeader)
       .then((result) => {
         this.setState({ formFlag: false });
         toast(

@@ -379,7 +379,7 @@ const Products = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((product, index) => (
+              {products.length > 0 ? products.map((product, index) => (
                 <tr key={index}>
                   <th scope="row" className="text-align-center">
                     {index + 1}
@@ -406,7 +406,13 @@ const Products = () => {
                     </Button>
                   </td>
                 </tr>
-              ))}
+              )):(
+                <tr>
+                  <td colSpan="4">
+                    <h3>No products added yet</h3>  
+                  </td>
+                </tr>
+              )}
             </tbody>
           </Table>
         </div>
