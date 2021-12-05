@@ -19,7 +19,7 @@ import env from "react-dotenv";
 import store from "../../../store/index";
 import Modal from "./Modal";
 
-var app_mode = env.MODE ? env.MODE: 'development'
+var app_mode = env.MODE ? env.MODE: 'development';
 var default_url = app_mode == 'production'? "https://api.mistershoppie.com/" : "https://api.keralashoppie.com/";
 const api_url =env.API_URL?env.API_URL: default_url;
 // const api_url = "http://localhost:3001/api/v1/";
@@ -370,7 +370,7 @@ const Products = () => {
                   </FormGroup>
                 </Col>
                 <Col className="mt-3" md="6">
-                  {
+                {!isUpdateMode && (
                     
                       <FormGroup>
                         <Label for="Image">Image {isUpdateMode}</Label>
@@ -386,7 +386,7 @@ const Products = () => {
                           
                         </Col>
                       </FormGroup>
-                  }
+                )}
                 </Col>
                 {/* <Col className="mt-3" md="12">
                     {varients.map((x, index) => (
