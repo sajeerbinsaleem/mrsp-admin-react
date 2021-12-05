@@ -42,6 +42,8 @@ const Products = () => {
   const [isUpdateMode, setIsUpdateMode] = useState(false);
   const [form, setForm] = useState(default_product);
   const [isRefresh, setIsRefresh] = useState(false);
+  const [hasImage, setHasImage] = useState(false);
+  const [varients, setVarients] = useState([{phone:'',email:'',title:'',name:''}]);
   const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
 
@@ -113,6 +115,7 @@ const Products = () => {
         if (isUpdateMode && form.product_image) {
           return;
         }
+        setHasImage(true)
         setForm({ ...form, ["product_image"]: event.target.files[0] });
         break;
       case "is_available":
@@ -137,7 +140,7 @@ const Products = () => {
       formData.append("price", form.price);
       formData.append("offer_price", form.offer_price);
       formData.append("product_varient_id", form.product_varient_id);
-      formData.append("isAvailable", form.isAvailable);
+      formData.append("isAvailable", form.is_available);
       formData.append("categories", 7);
       formData.append("quantity", 1);
       formData.append("store_id", storeId);
@@ -145,6 +148,10 @@ const Products = () => {
       formData.append("type", 1);
       formData.append("added_by", 1);
       // formData.append("added_by", store.getState().user.id);
+      if(hasImage){
+        formData.append("image", form.product_image, form.product_image.name);
+
+      }
       console.log(isUpdateMode)
 
       if (isUpdateMode) {
@@ -157,7 +164,7 @@ const Products = () => {
           fetchProducts();
         } catch (error) {}
       } else {
-        formData.append("image", form.product_image, form.product_image.name);
+        
         try {
           await axios.post(api_url + "api/v1/product", formData);
           modalHandler();
@@ -180,6 +187,13 @@ const Products = () => {
     setIsRefresh(!isRefresh);
   };
 
+  const handleCellChange = (event, position) =>{
+    var varients_state = varients;
+    var varients_parsed =  JSON.parse(JSON.stringify(varients_state)) 
+    varients_parsed[position][event.target.name] = event.target.value;
+    setVarients(varients)
+
+}
   const updateHandler = (product) => {
     setIsUpdateMode(!isUpdateMode);
     setForm({ ...product });
@@ -187,6 +201,17 @@ const Products = () => {
     alert('tesssst',isUpdateMode);
 
   };
+  const addRow = (e) => {
+    e.preventDefault();
+    let obj = {name:'',title:'',email:'',phone:''};
+    // varients({ contacts: [...this.state.contacts, obj ] });
+}
+ const removeRow = (ind) => {
+    var contacts_new = varients;
+    var abc = contacts_new.splice(ind, 1);
+    console.log(abc,ind,contacts_new)
+    // this.setState({ contacts: contacts_new });
+}
 
   return (
     <>
@@ -346,7 +371,7 @@ const Products = () => {
                 </Col>
                 <Col className="mt-3" md="6">
                   {
-                    !isUpdateMode? (
+                    
                       <FormGroup>
                         <Label for="Image">Image {isUpdateMode}</Label>
                         <Col>
@@ -361,9 +386,24 @@ const Products = () => {
                           
                         </Col>
                       </FormGroup>
-                    ):''
                   }
                 </Col>
+                {/* <Col className="mt-3" md="12">
+                    {varients.map((x, index) => (
+                      <Row>
+                        <Col md="2">
+                            <Label for="Image">Varient {isUpdateMode}</Label>
+                            <input type="text" value={x.name} style={{"width": "100%"}}></input>
+                        </Col>
+                        <Col md="2">
+                            <Label for="Image">Price {isUpdateMode}</Label>
+                            <input type="text" value={x.name} style={{"width": "100%"}}></input>
+                        </Col>
+                        
+                      </Row>
+                            
+                    ))}
+                </Col> */}
               </Row>
             </Form>
           </Modal>

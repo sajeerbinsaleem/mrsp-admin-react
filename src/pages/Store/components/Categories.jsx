@@ -40,6 +40,8 @@ const Categories = () => {
   const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
   const [isRefresh, setIsRefresh] = useState(false);
+  const [buttonFlag, setButtonFlag] = useState(false);
+
 
   const postForm = {
     store_id: storeId,
@@ -86,6 +88,11 @@ const Categories = () => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
+    if(buttonFlag){
+      alert('processing please wait!');
+      return;
+    }
+
     if (simpleValidator.current.allValid()) {
       const formData = new FormData();
       formData.append("title_ml", form.title.ml);
@@ -96,10 +103,17 @@ const Categories = () => {
 
       if (isUpdateMode) {
         try {
-          const response = await axios.put(
+          setButtonFlag(true)
+
+           axios.put(
             api_url + `api/v1/productCategory/update/${form.id}`,
             formData
-          );
+          ).then(response => {
+            setButtonFlag(false)
+          }).catch(e => {
+            setButtonFlag(false)
+
+          })
           modalHandler();
         } catch (error) {
           console.log(error);
@@ -107,13 +121,23 @@ const Categories = () => {
       } else {
         formData.append("image", form.image);
         try {
-          const response = await axios.post(
+          setButtonFlag(true)
+          axios.post(
             api_url + "api/v1/productCategory",
             formData
-          );
-          modalHandler();
+          ).then(response => {
+            setButtonFlag(false);
+            modalHandler();
+
+
+          }).catch(e => {
+            setButtonFlag(false)
+
+          })
         } catch (error) {
           console.log(error);
+          setButtonFlag(false)
+
         }
       }
     } else {
@@ -148,7 +172,7 @@ const Categories = () => {
           <Modal
             show={show}
             modalHandler={modalHandler}
-            title={isUpdateMode ? "Update Category" : "Add Product"}
+            title={isUpdateMode ? "Update Category" : "Add Category"}
             submitHandler={submitHandler}
           >
             <Form inline className="mx-5">

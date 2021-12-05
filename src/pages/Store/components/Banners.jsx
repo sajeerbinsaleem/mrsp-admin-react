@@ -41,6 +41,7 @@ const Banners = () => {
   const [form, setForm] = useState(defaultBanner);
   const [isUpdateMode, setIsUpdateMode] = useState(false);
   const [isRefresh, setIsRefresh] = useState(false);
+  const [buttonFlag, setButtonFlag] = useState(false);
 
   const simpleValidator = useRef(new SimpleReactValidator());
   const storeId = useParams().storeId;
@@ -73,6 +74,10 @@ const Banners = () => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
+    if(buttonFlag){
+      alert('processing please wait!');
+      return;
+    }
 
     if (simpleValidator.current.allValid()) {
       const formData = new FormData();
@@ -81,16 +86,33 @@ const Banners = () => {
       formData.append("store_id", storeId);
       formData.append("type", form.title);
       if (isUpdateMode) {
-        const response = await axios.put(
+        setButtonFlag(true)
+       
+        axios.put(
           api_url + `api/v1/storeBanner/update/${form.id}`,
           formData
-        );
-        modalHandler();
+        ).then(response => {
+          setButtonFlag(false);
+          modalHandler();
+
+        }).catch(e => {
+          setButtonFlag(false);
+        })
       } else {
         try {
-          const response = await axios.post(api_url + "api/v1/storeBanner", formData);
-          modalHandler();
+          setButtonFlag(true)
+          axios.post(api_url + "api/v1/storeBanner", formData).then(response => {
+            setButtonFlag(false)
+
+            modalHandler();
+
+          }).catch(e => {
+            setButtonFlag(false)
+
+          })
         } catch (error) {
+          setButtonFlag(false)
+
           console.log(error);
         }
       }
